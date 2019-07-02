@@ -1,0 +1,698 @@
+﻿@{
+    Layout = "~/_SiteLayout.cshtml";
+    Page.Title = "PostPage";
+    PageData["current"] = "Forums";
+
+    Validation.RequireField("reply", "Please type in a reply before posting");
+
+    /// Variables ///
+    string mail = "";
+    string errorMsg = "";
+
+    int Forum_Forum_Id = 0;
+    string ForumName = "";
+    string ForumDesc = "";
+    string IsPrivate = "";
+
+    int Post_Id = 2;
+    string PostTitle = "";
+    string PostContent = "";
+
+    int Comment_Id = 0;
+    string Username_Commenter = "";
+    string CommenterRank = "";
+    string Comment = "";
+    string Comment_Time = "";
+    string Comment_Date = "";
+    string commenter_profpic = "";
+
+    string Username_Replier = "";
+
+    string Rank = "";
+
+    int UpvoteC = 0;
+    int DownvoteC = 0;
+    int UpvoteR = 0;
+    int DownvoteR = 0;
+    string UporDown = "";
+    /// -------- ///
+
+
+    /// Get Data from Url ///
+    if (Request.QueryString["ForumId"] != null && Request.QueryString["PostId"] != null && Request.QueryString["CommentId"] != null)
+    {
+        Forum_Forum_Id = Request.QueryString["ForumId"].AsInt();
+        Post_Id = Request.QueryString["PostId"].AsInt();
+        Comment_Id = Request.QueryString["CommentId"].AsInt();
+    }
+    else { Response.Redirect("~/ForumPage.cshtml"); }
+    /// ---------------- ///
+
+
+    /// Get User Mail ///
+    if (Session["mail"] != null)
+    {
+        mail = Session["mail"].ToString();
+    }
+    else { Response.Redirect("~/login.cshtml"); }
+    /// ------------ ///
+
+
+    /// Open Database ///
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+    string provider = "System.Data.SqlClient";
+    Database db = Database.OpenConnectionString(connectionString, provider);
+    /// ------------ ///
+
+    /// Get User Data from Current User ///
+    var UserData = db.QuerySingle("SELECT * FROM Profiel WHERE Email = @0", mail);
+    if (UserData == null)
+    {
+        Session.Abandon();
+        Response.Redirect("~/login.cshtml");
+    }
+    Username_Replier = UserData.Username;
+    Rank = UserData.Rank;
+    /// ------------------------------ ///
+
+
+    /// Get Forum, Post and Comments Data ///
+    var SelectForum = db.QuerySingle("SELECT * FROM [Forum] WHERE Forum_Id = @0", Forum_Forum_Id);
+    var SelectPost = db.QuerySingle("SELECT * FROM [Post] WHERE Post_Id = @0", Post_Id);
+    var SelectComment = db.QuerySingle("SELECT * FROM [Comments] WHERE Comment_Id = @0", Comment_Id);
+    var C_VotedAs = db.QuerySingle("SELECT Voted FROM IsVoted WHERE Comment_Comment_Id = @0 AND Reply_Reply_Id IS NULL AND Username_Username = @1 AND Reply_Reply_Id IS NULL", Comment_Id, Username_Replier);
+
+    if (C_VotedAs != null)
+    {
+        C_VotedAs = C_VotedAs.Voted;
+    }
+    else
+    {
+        C_VotedAs = "";
+    }
+
+    if (SelectComment != null)
+    {
+        Comment_Id = SelectComment.Comment_Id;
+        Username_Commenter = SelectComment.Username_Username;
+        CommenterRank = db.QuerySingle("SELECT Rank FROM Profiel WHERE Username = @0", Username_Commenter).Rank;
+        UpvoteC = SelectComment.Upvote;
+        DownvoteC = SelectComment.Downvote;
+        Comment = SelectComment.Comment;
+        Comment_Time = SelectComment.Time;
+        Comment_Date = SelectComment.Date;
+        commenter_profpic = db.QuerySingle("SELECT Prof_Picture FROM [Profiel] WHERE Username = @0", Username_Commenter).Prof_Picture;
+    }
+    var SelectReplies = db.Query("SELECT * FROM [Replies] WHERE Comment_Comment_Id = @0 ORDER BY Reply_Id DESC", Comment_Id);
+    if (SelectPost != null && SelectComment != null && SelectForum != null)
+    {
+        IsPrivate = db.QuerySingle("SELECT IsPrivate FROM [Forum] WHERE Forum_Id = @0", Forum_Forum_Id).IsPrivate;
+        ForumName = db.QuerySingle("SELECT Forum_name FROM [Forum] WHERE Forum_Id = @0", Forum_Forum_Id).Forum_name;
+        if (IsPrivate == "Y" && Rank != "Owner" && Rank != "Teacher")
+        {
+            Response.Redirect("~/ForumPage.cshtml");
+        }
+    }
+    else { Response.Redirect("~/Forumpage.cshtml"); }
+    int check_if_user_reported_comment = db.QuerySingle("SELECT COUNT(Reported_by) AS Count FROM Reports WHERE Reported_by = @0 AND Comment_Comment_Id = @1 AND Reply_Reply_Id IS NULL", Username_Replier, Comment_Id).Count;
+    /// -------------------------------- ///
+
+
+    if (IsPost)
+    {
+        ///Report
+        if (Request.Form["comment_report"] != null || Request.Form["reply_report"] != null)
+        {
+            if (Request.Form["comment_report"] != null)
+            {
+                if (check_if_user_reported_comment != 0)
+                {
+                    Response.Redirect(Request.RawUrl);
+                }
+                string reason = Request.Form["comment_reason"];
+                db.Execute("INSERT INTO Reports(Forum_Forum_Id, Post_Post_Id, Comment_Comment_Id, Reason, Reported_by) VALUES(@0, @1, @2, @3, @4)", Forum_Forum_Id, Post_Id, Comment_Id, reason, Username_Replier);
+            }
+            else if (Request.Form["reply_report"] != null)
+            {
+                int Reply_Id = Request.Form["Reply_report"].AsInt();
+                int check_if_user_reported_reply = db.QuerySingle("SELECT COUNT(Reported_by) AS Count FROM Reports WHERE Reported_by = @0 AND Reply_Reply_Id = @1", Username_Replier, Reply_Id).Count;
+                if (check_if_user_reported_reply != 0)
+                {
+                    Response.Redirect(Request.RawUrl);
+                }
+                string reason = Request.Form["reply_reason"];
+                db.Execute("INSERT INTO Reports(Forum_Forum_Id, Post_Post_Id, Comment_Comment_Id, Reply_Reply_Id, Reason, Reported_by) VALUES(@0, @1, @2, @3, @4, @5)", Forum_Forum_Id, Post_Id, Comment_Id, Reply_Id, reason, Username_Replier);
+                //Optional set Report = 1, Column [Report] does not exist in the Table [Comments]
+            }
+            Response.Redirect(Request.RawUrl);
+        }
+
+        if (Request.Form["post-reply"] != null)
+        {
+            Validation.RequireField("reply", "Please enter something");
+            Validation.Add("reply", Validator.StringLength(200, 1, "You've exceeded the maximum comment size of 200 characters"));
+            if (Validation.IsValid())
+            {
+                string time = DateTime.Now.ToShortTimeString();
+                string date = DateTime.Now.ToShortDateString();
+                db.Execute("INSERT INTO Replies (Forum_Forum_Id, Post_Post_Id, Comment_Comment_Id, Username_Username, Reply, Upvote, Downvote, Time, Date) VALUES (@0, @1, @2, @3, @4, @5, @6, @7, @8)", Forum_Forum_Id, Post_Id, Comment_Id, Username_Replier, Request.Form["reply"], 0, 0, time, date);
+                if (Username_Replier != Username_Commenter)
+                {
+                    db.Execute("INSERT INTO Notifications(Profiel_Username, Subject_Username, Notification, Url) VALUES (@0, @1, @2, @3)", Username_Commenter, Username_Replier, ("Replied to your comment " + ((char)34) + Comment + ((char)34)), Request.RawUrl);
+                }
+                Response.Redirect("~/Replies.cshtml?CommentId=" + Comment_Id + "&PostId=" + Post_Id + "&ForumId=" + Forum_Forum_Id);
+            }
+        }
+
+        ///Upvote or Downvote
+        if (Request.Form["UpvoteC"] != null || Request.Form["DownvoteC"] != null)
+        {
+            string type = "Comment";
+            Send_Vote_Data(type, C_VotedAs, Username_Replier);
+            Response.Redirect(Request.RawUrl);
+        }
+        else if (Request.Form["UpvoteR"] != null || Request.Form["DownvoteR"] != null)
+        {
+            string type = "Reply";
+            int Reply_Id = GetReplyId();
+            string R_VotedAs = "";
+            var R_Get_is_voted_as = db.QuerySingle("SELECT Voted FROM IsVoted WHERE Reply_Reply_Id = @0 AND Username_Username = @1", Reply_Id, Username_Replier);
+            if (R_Get_is_voted_as != null)
+            {
+                R_VotedAs = R_Get_is_voted_as.Voted;
+            }
+            Send_Vote_Data(type, R_VotedAs, Username_Replier);
+            Response.Redirect(Request.RawUrl);
+        }
+
+        ///Delete
+        if (Request.Form["reply_delete"] != null)
+        {
+            int Id = Request.Form["reply_delete"].AsInt();
+            db.Execute("DELETE FROM [Reports] WHERE Reply_Reply_Id = @0", Id);
+            db.Execute("DELETE FROM [IsVoted] WHERE Reply_Reply_Id = @0", Id);
+            db.Execute("DELETE FROM [Replies] WHERE Reply_Id = @0", Id);
+            Response.Redirect(Request.RawUrl);
+        }
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link href="~/Stylesheets/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Stylesheets/Forum.css" rel="stylesheet" type="text/css" />
+    <link href="~/Stylesheets/Comments.css" rel="stylesheet" type="text/css" />
+    <link href="~/Stylesheets/Layout.css" rel="stylesheet" type="text/css" />
+    <meta charset="utf-8" />
+    <title></title>
+    <style type="text/css">
+
+        .modal-confirm {
+            color: #636363;
+            width: 400px;
+        }
+
+            .modal-confirm .modal-content {
+                padding: 20px;
+                border-radius: 5px;
+                border: none;
+                text-align: center;
+                font-size: 14px;
+            }
+
+            .modal-confirm .modal-header {
+                border-bottom: none;
+                position: relative;
+            }
+
+            .modal-confirm h4 {
+                text-align: center;
+                font-size: 26px;
+                margin: 30px 0 -10px;
+            }
+
+            .modal-confirm .close {
+                position: absolute;
+                top: -5px;
+                right: -2px;
+            }
+
+            .modal-confirm .modal-body {
+                color: #999;
+            }
+
+            .modal-confirm .modal-footer {
+                border: none;
+                text-align: center;
+                border-radius: 5px;
+                font-size: 13px;
+                padding: 10px 15px 25px;
+            }
+
+                .modal-confirm .modal-footer a {
+                    color: #999;
+                }
+
+            .modal-confirm .icon-box {
+                width: 80px;
+                height: 80px;
+                margin: 0 auto;
+                border-radius: 50%;
+                z-index: 9;
+                text-align: center;
+                border: 3px solid #f15e5e;
+            }
+
+                .modal-confirm .icon-box i {
+                    color: #f15e5e;
+                    font-size: 46px;
+                    display: inline-block;
+                    margin-top: 13px;
+                }
+
+            .modal-confirm .btn {
+                color: #fff;
+                border-radius: 4px;
+                background: #60c7c1;
+                text-decoration: none;
+                transition: all 0.4s;
+                line-height: normal;
+                min-width: 120px;
+                border: none;
+                min-height: 40px;
+                border-radius: 3px;
+                margin: 0 5px;
+                outline: none !important;
+            }
+
+            .modal-confirm .btn-info {
+                background: #c1c1c1;
+            }
+
+                .modal-confirm .btn-info:hover, .modal-confirm .btn-info:focus {
+                    background: #a8a8a8;
+                }
+
+            .modal-confirm .btn-danger {
+                background: #f15e5e;
+            }
+
+                .modal-confirm .btn-danger:hover, .modal-confirm .btn-danger:focus {
+                    background: #ee3535;
+                }
+
+        .trigger-btn {
+            display: inline-block;
+            margin: 100px auto;
+        }
+        #background {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            z-index: -1;
+        }
+
+        .stretch {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body style="font-family: 'Crimson Text', serif;">
+    <div id="background">
+        <img class="stretch" src="~/Images/HP_backgr_forum.jpg" />
+    </div>
+    <div class="container">
+        <div class="row" style="padding:20px">
+            <div class="col-lg-12">
+                <div class="wrapper wrapper-content animated fadeInRight">
+                    <div class="ibox-content forum-container" style="background-color: rgba(52, 58, 64, 0.85);">
+                        <a href="CommentsPage.cshtml?ForumId=@Forum_Forum_Id&PostId=@Post_Id">back</a>
+                        <div class="forum-title">
+                            <h3 style="color: white">@ForumName</h3>
+                        </div>
+                        <div class="forum-item active" style="color:white;">
+                            @if (check_if_user_reported_comment == 1)
+                            {
+                                <a class="link-replace" style="float: right; color: #007aff;"><i style="color: #007aff;" class="fas fa-flag"></i></a>
+                            }
+                            else
+                            {
+                                <a style="float: right; color: #a00000;" href="#commentReport" data-toggle="modal"><i style="color: #a00000;" class="fas fa-flag"></i></a>
+                            }
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <div class="forum-icon">
+                                        <img style="max-height:50px; min-height:45px; max-width: 45px; min-width:45px; border: 2px; border-color: gray " src="@commenter_profpic" />
+                                    </div>
+                                    @switch (CommenterRank)
+                                    {
+                                        case "Student":
+                                            <label class="forum-item-title" style="color:#007aff"><a href="~/ProfilePage.cshtml?username=@Username_Commenter">@Username_Commenter</a> <p class="rank">(@CommenterRank)</p></label>
+                                            break;
+                                        case "Teacher":
+                                            <label class="forum-item-title" style="color:#007aff"><a href="~/ProfilePage.cshtml?username=@Username_Commenter">@Username_Commenter</a> <p class="rank" style="color: #cc3c71">(@CommenterRank)</p></label>
+                                            break;
+                                        case "Owner":
+                                            <label class="forum-item-title" style="color:#007aff"><a href="~/ProfilePage.cshtml?username=@Username_Commenter">@Username_Commenter </a> <p class="rank" style="color: #ff7220">(@CommenterRank)</p></label>
+                                            break;
+                                    }
+                                    <div class="forum-sub-title" style="color:white">@Comment</div>
+                                </div>
+                                <div style="float:left; display:inline; width: 20%;" class="col-md-1 forum-info">
+                                    <form method="post">
+                                        <span class="views-number" style="color:white">
+                                            @UpvoteC
+                                        </span>
+                                        <div>
+                                            <small id="display-none" style="color:white">Upvotes</small>
+                                            <button class="vote" name="UpvoteC" type="submit" value="UpvoteC">
+                                                @if (C_VotedAs == "Upvoted")
+                                                {<i id="upvoted" class="fas fa-arrow-alt-circle-up"></i> }
+                                                else
+                                                { <i id="notvoted" class="fa fa-arrow-alt-circle-up"></i>}
+                                                <i id="loading" class="fas fa-broom"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div style="float:left; display:inline; width: 20%;" class="col-md-1 forum-info">
+                                    <form method="post">
+                                        <span class="views-number" style="color:white">
+                                            @DownvoteC
+                                        </span>
+                                        <div>
+                                            <small id="display-none" style="color:white">Downvotes</small>
+                                            <button class="vote" name="DownvoteC" type="submit" value="DownvoteC">
+                                                @if (C_VotedAs == "Downvoted")
+                                                {<i id="downvoted" class="fas fa-arrow-alt-circle-down"></i> }
+                                                else
+                                                { <i id="notvoted" class="fa fa-arrow-alt-circle-down"></i>}
+                                                <i id="loading" class="fas fa-broom"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                @if (errorMsg != "")
+                                {@errorMsg}
+                            </div>
+                            <div id="commentReport" class="modal fade" style="display: none;">
+                                <form method="post">
+                                    <div class="modal-dialog modal-confirm">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <div class="icon-box">
+                                                    <i class="fas fa-exclamation"></i>
+                                                </div>
+                                                <h4 class="modal-title">Report Comment</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Reason for reporting: <br /> <span style="font-weight: bold;">@Comment</span>?<br /></p>
+                                                <center>
+                                                    <select name="comment_reason" style="max-width: 200px;">
+                                                        <option value="offensive">This comment is Offensive.</option>
+                                                        <option value="spam">This comment is Spam.</option>
+                                                        <option value="dangerous">This comment contains Dangerous or Inappropriate content.</option>
+                                                    </select>
+                                                </center>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
+                                                <button value="@Comment" name="comment_report" type="submit" class="btn btn-danger">Report</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div id="date-time" class="row">
+                                <div class="col-3">
+                                    <label>@Comment_Time</label>
+                                </div>
+                                &nbsp;
+                                <div class="col-3">
+                                    <label>@Comment_Date</label>
+                                </div>
+                            </div>
+                            <div style="padding-bottom: 6px;"></div>
+
+                        </div>
+                        <div>
+                            <form method="post">
+                                <input name="reply" placeholder="Reply something..." class="comment-box" type="text" />
+                                <input name="post-reply" value="Post" class="comment-submit" type="submit" />
+                            </form>
+                            <span style="color: rgb(180, 0, 0)">@Html.ValidationMessage("reply")</span>
+                        </div>
+                        <br /><br />
+                        <!-- Foreach -->
+                        @foreach (var reply in SelectReplies)
+                        {
+                            string R_is_voted_as = "";
+                            var ReplierRank = db.QuerySingle("SELECT Rank FROM Profiel WHERE Username = @0", reply.Username_Username).Rank;
+                            var R_Get_is_voted_as = db.QuerySingle("SELECT Voted FROM IsVoted WHERE Reply_Reply_Id = @0 AND Username_Username = @1", reply.Reply_Id, Username_Replier);
+                            int check_if_user_reported_reply = db.QuerySingle("SELECT COUNT(Reported_by) AS Count FROM Reports WHERE Reported_by = @0 AND Reply_Reply_Id = @1", Username_Replier, reply.Reply_Id).Count;
+                            string replier_profpic = db.QuerySingle("SELECT Prof_Picture FROM [Profiel] WHERE Username = @0", reply.Username_Username).Prof_Picture;
+                            if (R_Get_is_voted_as != null)
+                            {
+                                R_is_voted_as = R_Get_is_voted_as.Voted;
+                            }
+                            <div class="forum-item active" style="color: white; margin-left: 50px;">
+                                @if (check_if_user_reported_reply == 1)
+                                {
+                                    <a class="link-replace" style="float: right; color: #007aff;"><i style="color: #007aff;" class="fas fa-flag"></i></a>
+                                }
+                                else
+                                {
+                                    <a style="float: right; color: #a00000;" href="#replyReport_@reply.Reply_Id" data-toggle="modal"><i style="color: #a00000;" class="fas fa-flag"></i></a>
+                                }
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <div class="forum-icon">
+                                        <img style="max-height:35px; min-height:30px; max-width: 30px; min-width:30px; border: 2px; border-color: gray " src="@replier_profpic" />
+                                    </div>
+                                    @switch (ReplierRank)
+                                    {
+                                        case "Student":
+                                            <label class="forum-item-title" style="color:#007aff"><a href="~/ProfilePage.cshtml?username=@reply.Username_Username">@reply.Username_Username</a> <p class="rank">(@ReplierRank)</p></label>
+                                            break;
+                                        case "Teacher":
+                                            <label class="forum-item-title" style="color:#007aff"><a href="~/ProfilePage.cshtml?username=@reply.Username_Username">@reply.Username_Username</a> <p class="rank" style="color: #cc3c71">(@ReplierRank)</p></label>
+                                            break;
+                                        case "Owner":
+                                            <label class="forum-item-title" style="color:#007aff"><a href="~/ProfilePage.cshtml?username=@reply.Username_Username">@reply.Username_Username</a> <p class="rank" style="color: #ff7220">(@ReplierRank)</p></label>
+                                            break;
+                                    }
+                                    <div class="forum-sub-title" style="color:white">@reply.Reply</div>
+                                </div>
+                                <div style="float:left; display:inline; width: 20%;" class="col-md-1 forum-info">
+                                    <form method="post">
+                                        <span class="views-number" style="color:white; font-size: 14px;">
+                                            @reply.Upvote
+                                        </span>
+                                        <div>
+                                            <small id="display-none" style="color:white; font-size: 11px;">Upvotes</small>
+                                            <button class="vote" name="UpvoteR" type="submit" value="@reply.Reply_Id">
+                                                @if (R_is_voted_as == "Upvoted")
+                                                {<i id="upvoted" class="fas fa-arrow-alt-circle-up" style="font-size: 12px;"></i> }
+                                                else
+                                                { <i id="notvoted" class="fa fa-arrow-alt-circle-up" style="font-size: 12px;"></i>}
+                                                <i id="loading" class="fas fa-broom"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div style="float:left; display:inline; width: 20%;" class="col-md-1 forum-info">
+                                    <form method="post">
+                                        <span class="views-number" style="color:white; font-size: 14px;">
+                                            @reply.Downvote
+                                        </span>
+                                        <div>
+                                            <small id="display-none" style="color:white; font-size: 11px;">Downvotes</small>
+                                            <button class="vote" name="DownvoteR" type="submit" value="@reply.Reply_Id">
+                                                @if (R_is_voted_as == "Downvoted")
+                                                {<i id="downvoted" class="fas fa-arrow-alt-circle-down" style="font-size: 12px;"></i> }
+                                                else
+                                                { <i id="notvoted" class="fa fa-arrow-alt-circle-down" style="font-size: 12px;"></i>}
+                                                <i id="loading" class="fas fa-broom"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                @if (Username_Replier == reply.Username_Username)
+                                {
+                                    <div id="EdDel">
+                                        <a style="color: #a00000" href="#postDelete_@reply.Reply_Id" data-toggle="modal">Delete</a>
+                                    </div>
+                                }
+                                <div id="postDelete_@reply.Reply_Id" class="modal fade" style="display: none;">
+                                    <form method="post">
+                                        <div class="modal-dialog modal-confirm">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <div class="icon-box">
+                                                        <i class="fas fa-exclamation"></i>
+                                                    </div>
+                                                    <h4 class="modal-title">Delete Reply</h4>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to delete <br /> <span style="font-weight: bold;">@reply.Reply_Id</span>?<br /></p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
+                                                    <button value="@reply.Reply_Id" name="reply_delete" type="submit" class="btn btn-danger">Delete</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                                <div id="date-time" class="row">
+                                    <div class="col-3">
+                                        <label>@reply.Time</label>
+                                    </div>
+                                    &nbsp;
+                                    <div class="col-3">
+                                        <label>@reply.Date</label>
+                                    </div>
+                                </div>
+                                <div style="padding-bottom: 6px;"></div>
+                                <div id="replyReport_@reply.Reply_Id" class="modal fade" style="display: none;">
+                                    <form method="post">
+                                        <div class="modal-dialog modal-confirm">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <div class="icon-box">
+                                                        <i class="fas fa-exclamation"></i>
+                                                    </div>
+                                                    <h4 class="modal-title">Report Reply</h4>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Reason for reporting: <br /> <span style="font-weight: bold;">@reply.Reply</span>?<br /></p>
+                                                    <center>
+                                                        <select name="reply_reason" style="max-width: 200px;">
+                                                            <option value="offensive">This reply is Offensive.</option>
+                                                            <option value="spam">This reply is Spam.</option>
+                                                            <option value="dangerous">This reply contains Dangerous or Inappropriate content.</option>
+                                                        </select>
+                                                    </center>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
+                                                    <button value="@reply.Reply_Id" name="reply_report" type="submit" class="btn btn-danger">Report</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <br />
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+@functions{
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="is_voted_as"></param>
+    public void Send_Vote_Data(string type, string is_voted_as, string voter)
+    {
+        string vote = "";
+        type = FirstCharToUpper(type);
+        if (Request.Form["UpvoteC"] != null || Request.Form["UpvoteR"] != null)
+        {
+            vote = "Upvote";
+        }
+        else if (Request.Form["DownvoteC"] != null || Request.Form["DownvoteR"] != null)
+        {
+            vote = "Downvote";
+        }
+        Functions functions = new Functions();
+        int Forum_Id = GetForumId();
+        int Post_Id = GetPostId();
+        int Comment_Id = GetCommentId();
+        int Reply_Id = GetReplyId();
+        functions.Vote(voter, type, is_voted_as, vote, Forum_Id, Post_Id, Comment_Id, Reply_Id);
+        //Vote(type, is_voted_as, vote);
+    }
+
+    /// <summary>
+    /// Capitalizes the first character of a given string
+    /// </summary>
+    /// <param name="s"></param>
+    /// <returns>Given string with capatilized first letter</returns>
+    public static string FirstCharToUpper(string s)
+    {
+        if (string.IsNullOrEmpty(s))
+        {
+            return string.Empty;
+        }
+        return char.ToUpper(s[0]) + s.Substring(1);
+    }
+
+    /// <summary>
+    /// Returns the database Id of the current forum
+    /// </summary>
+    /// <returns>ForumId</returns>
+    public int GetForumId()
+    {
+        return Request.QueryString["ForumId"].AsInt();
+    }
+
+    public int GetPostId()
+    {
+        return Request.QueryString["PostId"].AsInt();
+    }
+
+    /// <summary>
+    /// Returns the database Id of the requested type
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns>Post or Comment Id</returns>
+    public int GetCommentId()
+    {
+        return Request.QueryString["CommentId"].AsInt();
+    }
+
+    public int GetReplyId()
+    {
+        int Id = 0;
+        if (Request.Form["UpvoteR"] != null)
+        {
+            Id = Request.Form["UpvoteR"].AsInt();
+        }
+        else if (Request.Form["DownvoteR"] != null)
+        {
+            Id = Request.Form["DownvoteR"].AsInt();
+        }
+        return Id;
+    }
+
+    /// <summary>
+    /// Returns the user who's voting
+    /// </summary>
+    /// <returns>Username of voter</returns>
+    public string GetVoter()
+    {
+        string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+        string provider = "System.Data.SqlClient";
+        Database db = Database.OpenConnectionString(connectionString, provider);
+
+        string mail = Session["mail"].ToString();
+        var UserData = db.QuerySingle("SELECT * FROM Profiel WHERE Email = @0", mail);
+        return db.QuerySingle("SELECT * FROM Profiel WHERE Email = @0", mail).Username;
+    }
+}

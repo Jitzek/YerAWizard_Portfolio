@@ -1,0 +1,297 @@
+﻿@{
+                Validation.RequireField("mail", "You must enter an Email");
+                Validation.RequireField("password", "You must enter a password");
+
+                string mail = "";
+                string password = "";
+                string sha256 = "";
+                string salt = "";
+                string checkpassword = "";
+
+                string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+                string provider = "System.Data.SqlClient";
+                Database db = Database.OpenConnectionString(connectionString, provider);
+                if (Request.Cookies["User"] != null && Request.Cookies["Pass"] != null)
+                {
+                    mail = Request.Cookies["User"].Value;
+                    password = Request.Cookies["Pass"].Value;
+
+                    string getsalt = "SELECT Salt, Password, Is_Blocked FROM Profiel WHERE Email = @0";
+                    if (db.QuerySingle(getsalt, mail) != null)
+                    {
+                        checkpassword = db.QuerySingle(getsalt, mail).Password;
+                        var checkblock = db.QuerySingle(getsalt, mail).Is_Blocked;
+                        if (password == checkpassword && checkblock == null || checkblock == false)
+                        {
+                            Session["mail"] = mail;
+                            HttpCookie Login_Mail = new HttpCookie("User");
+                            HttpCookie Login_Pass = new HttpCookie("Pass");
+
+                            Login_Mail.HttpOnly = true;
+                            Login_Mail.Value = mail;
+                            Login_Mail.Expires = DateTime.Now.AddDays(1);
+                            Response.Cookies.Add(Login_Mail);
+
+                            Login_Pass.HttpOnly = true;
+                            Login_Pass.Value = password;
+                            Login_Pass.Expires = DateTime.Now.AddDays(1);
+                            Response.Cookies.Add(Login_Pass);
+                            Functions functions = new Functions();
+                            string rank = functions.Rank(mail);
+                            if (rank == "Owner")
+                            {
+                                Response.Redirect("~/Admin page.cshtml");
+                            }
+                            else if (rank == "Student" || rank == "Teacher")
+                            {
+                                Response.Redirect("~/HomePage.cshtml");
+                            }
+                        }
+                        else if (checkblock == true)
+                        {
+                            Session.Abandon();
+                <div class="alert">
+                    Account blocked
+                </div>
+            }
+    }
+    }
+
+    if (IsPost && Validation.IsValid())
+    {
+        mail = Request.Form["mail"];
+        if (Request.Cookies["Pass"] == null)
+        {
+            password = Request.Form["password"];
+        }
+
+        var dbcountuser = "SELECT COUNT(*) AS Counter FROM [Profiel] WHERE Email = @0";
+        var dbcountuserquery = db.QuerySingle(dbcountuser, mail);
+        int counter = dbcountuserquery.Counter;
+
+        if (counter == 0)
+        {
+            <div class="alert">
+                No user found
+            </div>
+        }
+        else
+        {
+            string getsalt = "SELECT Salt, Password, Is_Blocked FROM Profiel WHERE Email = @0";
+
+            salt = db.QuerySingle(getsalt, mail).salt;
+            checkpassword = db.QuerySingle(getsalt, mail).Password;
+            var block = db.QuerySingle(getsalt, mail).Is_Blocked;
+            if (Request.Cookies["Pass"] != null)
+            {
+                sha256 = password;
+            }
+            else
+            {
+                sha256 = Crypto.SHA256(salt + password);
+            }
+            if (sha256 == checkpassword)
+            {
+                if (block == null || block == false)
+                {
+                    if (Request.UrlReferrer.AbsolutePath == Request.Url.AbsolutePath)
+                    {
+                        if (Session["mail"] == null)
+                        {
+                            Session["mail"] = Request.Form["mail"];
+                            var selectrank = "SELECT Rank FROM [Profiel] WHERE Email = @0";
+                            var ownerrank = db.QuerySingle(selectrank, mail).rank;
+
+                            /// Creates a cookie ///
+                            if (Request.Form["remember_me"] != null)
+                            {
+                                HttpCookie Login_Mail = new HttpCookie("User");
+                                HttpCookie Login_Pass = new HttpCookie("Pass"); //Authentication token would be more seu
+
+                                Login_Mail.HttpOnly = true;
+                                Login_Mail.Value = mail;
+                                Login_Mail.Expires = DateTime.Now.AddDays(1);
+                                Response.Cookies.Add(Login_Mail);
+
+                                Login_Pass.HttpOnly = true;
+                                Login_Pass.Value = db.QuerySingle("Select Password FROM Profiel WHERE Email = @0", mail).Password;
+                                Login_Pass.Expires = DateTime.Now.AddDays(1);
+                                Response.Cookies.Add(Login_Pass);
+                            }
+                            /// ---------------- ///
+                            if (ownerrank == "Owner")
+                            {
+                                Response.Redirect("~/Admin page.cshtml");
+                            }
+                            else
+                            {
+
+                                Response.Redirect("~/HomePage.cshtml");
+                            }
+                        }
+                        else
+                        {
+                            var selectrank = "SELECT Rank FROM [Profiel] WHERE Email = @0";
+                            var ownerrank = db.QuerySingle(selectrank, mail).rank;
+                            if (ownerrank == "Owner")
+                            {
+                                Response.Redirect("~/Admin page.cshtml");
+                            }
+                            else
+                            {
+                                Response.Redirect("~/HomePage.cshtml");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Session.Abandon();
+                    <div class="alert">
+                        Account blocked
+                    </div>
+                }
+
+
+            }
+            else
+            {
+                <div class="alert">
+                    oopsiewhoopsie, you typed a wrong thyngywyngy
+                </div>
+            }
+        }
+        // counts amount of users with a certain mail and password (0 means no user, 1 means user, > 1 means double users?)
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Stylesheets/StyleSheetLogin.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .field-validation-error {
+            color: red;
+        }
+
+        .alert {
+            padding: 20px;
+            background-color: #f44336;
+            color: white;
+            opacity: 1;
+            transition: opacity 0.6s;
+            margin-bottom: 15px;
+        }
+
+            .alert.success {
+                background-color: #4CAF50;
+            }
+
+            .alert.info {
+                background-color: #2196F3;
+            }
+
+            .alert.warning {
+                background-color: #ff9800;
+            }
+
+        .closebtn {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            .closebtn:hover {
+                color: black;
+            }
+    </style>
+    <title>Login</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon/favicon.ico" />
+</head>
+<body>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!------ Include the above in your HEAD tag ---------->
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css">
+    @*<script src="~/Scripts/maraudersmapscript.js"></script>*@
+    <div style="position:absolute; right:0; left:0;" class="container">
+        <div class="card card-login mx-auto text-center bg-dark">
+            <div class="card-header mx-auto bg-dark">
+                <img src="~/Images/hp logo.png" class="w-75" alt="Logo"><br />
+                @Html.ValidationSummary()
+
+            </div>
+            <div class="card-body">
+                <form action="" method="post">
+                    @Html.ValidationMessage("mail")
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><img style="max-width:26px" src="~/Images/wizard hat.png" /></span>
+                        </div>
+                        <input value="@Request.Form["mail"]" type="text" name="mail" class="form-control" placeholder="Email">
+                    </div>
+                    @Html.ValidationMessage("password")
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><img style="max-width:26px" src="~/Images/elder wand white.png" /></span>
+                        </div>
+                        <input value="@Request.Form["password"]" type="password" name="password" class="form-control" placeholder="Password">
+                    </div>
+                    <!---->
+                    <div class="input-group form-group">
+                        <div style="text-align: left; color: white;">
+                            <input type="checkbox" name="remember_me" value="1" /> &nbsp; Remember me
+                        </div>
+                    </div>
+                    <!---->
+                    <div class="form-group">
+                        <input type="submit" name="btn" value="Login" class="btn btn-outline-danger float-right login_btn">
+                    </div>
+
+                </form>
+                <button style="float:left" type="button" class="btn btn-outline-light" onclick="window.location.href = '/Register.cshtml';">
+                    Register
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        var Doc = document,
+            ox = oy = 0,
+            mDis = 80,
+            id = 0;
+        Doc.addEventListener('mousemove', track);
+        Doc.addEventListener('touchmove', track);
+        function track(event) {
+            var e = event.pageX ? event : event.targetTouches[0];
+            var dis = Math.round(Math.sqrt((ox - e.pageX) * (ox - e.pageX) + (oy - e.pageY) * (oy - e.pageY))),
+                xdiff = e.pageX - ox, ydiff = e.pageY - oy,
+                ang = Math.atan2(ydiff, xdiff) * 180 / Math.PI;
+            if (dis > mDis) {
+                ox = e.pageX; oy = e.pageY;
+                var ND = Doc.createElement('div');
+                TweenLite.set(ND, {
+                    className: 'foot', rotation: ang, x: e.pageX, y: e.pageY, scaleY: id & 1 ? -1 : 1, transformOrigin: "50% -70%"
+                });
+                Doc.body.appendChild(ND);
+                id++;
+                TweenLite.to(ND, 5, {
+                    opacity: 0, onComplete: function () {
+                        this.target.parentNode.removeChild(this.target);
+                    }
+                })
+            }
+        };
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.2/TweenMax.min.js"></script>
+</body>
+</html>

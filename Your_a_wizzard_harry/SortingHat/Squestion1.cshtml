@@ -1,0 +1,60 @@
+﻿@{
+    string Username = "";
+    string mail = "";
+    string Rank = "";
+    string prof_pic = "";
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+    string provider = "System.Data.SqlClient";
+    string houseid = "SELECT House_House_Id FROM Profiel WHERE Username = @0";
+    Database db = Database.OpenConnectionString(connectionString, provider);
+
+    if (Session["mail"] != null)
+    {
+        mail = Session["mail"].ToString();
+        Username = db.QuerySingle("SELECT Username FROM Profiel WHERE Email = @0", mail).Username;
+        Rank = db.QuerySingle("SELECT Rank FROM Profiel WHERE Email = @0", mail).Rank;
+        prof_pic = db.QuerySingle("SELECT Prof_Picture FROM Profiel WHERE Email = @0", mail).Prof_Picture;
+    }
+    var k = db.QuerySingle(houseid, Username).House_House_Id;
+    if (k != null)
+    {
+        Response.Redirect("~/Houses.cshtml");
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <link href="~/CSS-Ding/QuestionsStyle.css" rel="stylesheet">
+</head>
+<body style="background-color: #202225;">
+    <div class="container-fluid" style="background-color: #202225; color: white; ">
+        <div class="modal-dialog">
+            <div class="modal-content" style="background-color: #202225">
+                <div class="modal-header" style="background-color: #343a40; border-radius:5px">
+                    <h3>Question 1: Witch pet would you chose? </h3>
+                </div>
+                <div class="modal-body" style="background-color: #343a40; color: white; border-radius:5px">
+
+                    <form method="post" action="~/SortingHat/Squestion2.cshtml">
+                        <div class="quiz" id="quiz" data-toggle="buttons">
+                            <span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="Q1" value="griffindor" />  Owl<br /><br />
+                            <span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="Q1" value="hufflepuff" /> Cat<br /><br />
+                            <span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="Q1" value="ravenclaw" /> Toad<br /><br />
+                            <span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="Q1" value="slytherin" /> Rat<br /><br />
+                            <span class="btn-label"></span> <input class="btn btn-primary" type="submit" value="Next" />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer text-muted" style="background-color: #343a40; color: white; border-radius:5px">
+                    <span id="answer"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html> 

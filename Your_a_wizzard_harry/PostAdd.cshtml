@@ -1,0 +1,85 @@
+﻿@{
+    Validation.RequireField("title", "Please type in a Titel");
+    Validation.RequireField("content", "Please type in some Content");
+    string Title = "";
+    string Content = "";
+    string mail = "";
+    string Username = "";
+    int Forum_Id = 0;
+
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+    string provider = "System.Data.SqlClient";
+    Database db = Database.OpenConnectionString(connectionString, provider);
+
+    if (Session["mail"] != null)
+    {
+        mail = Session["mail"].ToString();
+        var Data = db.QuerySingle("SELECT * FROM Profiel WHERE Email = @0", mail);
+        Username = Data.Username;
+    }
+    else { Response.Redirect("~/login.cshtml"); }
+    string getUser = "SELECT Rank FROM [Profiel] WHERE Email = @0";
+    var rank = db.QuerySingle(getUser, mail).Rank;
+
+
+    if (Request.QueryString["ForumId"] != null)
+    {
+        Forum_Id = Request.QueryString["ForumId"].AsInt();
+    }
+    else { Response.Redirect("~/ForumPage.cshtml"); }
+
+    if (IsPost && Validation.IsValid())
+    {
+        Title = Request.Form["title"];
+        Content = Request.Form["content"];
+
+        db.Execute("INSERT INTO Post (Post_Title, Post_Content, Upvote, Downvote, Forum_Forum_Id, Profiel_Username) VALUES (@0, @1, @2, @3, @4, @5)", Title, Content, 0, 0, Forum_Id, Username);
+        Response.Redirect("~/PostPage.cshtml?ForumId=" + Forum_Id);
+    }
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title></title>
+    <link href="~/Stylesheets/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Stylesheets/Forum.css" rel="stylesheet" type="text/css" />
+    <meta charset="utf-8" />
+</head>
+<body style="background-color: #202225;">
+    <div class="container">
+        <center>
+            <div style="padding-bottom: 50px;"></div>
+            <div class="col-md-4" style="background: url(../Images/scroll.jpg) no-repeat center; background-size: cover;">
+                <div style="padding-top: 10px;"></div>
+                <form class="form-horizontal" action="" method="post" id="myform">
+                    <div class="form-group">
+                        <label style="color: black;" for="title">Post Title</label>
+                        <input style="background: url(../Images/scroll.jpg) no-repeat center; border-radius: 10px;" type="text" class="form-control" id="question" name="title" placeholder="Type Post Title Here" cols="40" rows="5" required>
+                        <span style="color: rgb(120, 0, 0)">@Html.ValidationMessage("title")</span>
+                    </div>
+                    <div id="fielda">
+                        <div id="fielda0">
+                            <hr />
+                            <div class="form-group">
+                                <label style="color: black;" for="csetitle">Post Content</label>
+                                <textarea style="background: url(../Images/scroll.jpg) no-repeat center; border-radius: 10px;" type="text" class="form-control" id="question" name="content" placeholder="Type Post Content Here" cols="40" rows="5" required></textarea>
+                                <span style="color: rgb(120, 0, 0)">@Html.ValidationMessage("content")</span>
+                            </div>
+                            <hr />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <a href="~/PostPage.cshtml?ForumId=@Forum_Id" class="cancelBtn">cancel</a>
+                        &nbsp;
+                        <input type="submit" id="add-more" name="add" class="btn btn-primary" value="Add Post" />
+                    </div>
+                </form>
+                <div style="padding-bottom: 20px;"></div>
+            </div>
+        </center>
+    </div>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+﻿@{
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+
+    string provider = "System.Data.SqlClient";
+    Database db = Database.OpenConnectionString(connectionString, provider);
+
+    string GetTeacher;
+    string Teacher;
+    string GetLessonName;
+    string lesson_Titel; ;
+    string GetLessonInfo;
+    string lesson_Info;
+    string getlesson_Id;
+    int lesson_id = Request.QueryString["Lesson_Id"].AsInt();
+    if (!Request.QueryString["Lesson_Id"].IsEmpty() && Request.QueryString["Lesson_Id"].IsInt())
+    {
+        int Lesson_Id = Request.QueryString["Lesson_Id"].AsInt();
+        GetTeacher = "SELECT Teacher FROM Lesson WHERE Lesson_Id = @0";
+        Teacher = db.QueryValue(GetTeacher, Lesson_Id);
+
+        //haalt de naam van de les op
+        GetLessonName = "SELECT Lesson_name FROM Lesson WHERE Lesson_Id = @0";
+        lesson_Titel = db.QueryValue(GetLessonName, Lesson_Id);
+
+        //haalt het les stof op
+        GetLessonInfo = "SELECT Lesson_Material FROM Lesson WHERE Lesson_Id =@0";
+        lesson_Info = db.QueryValue(GetLessonInfo, Lesson_Id);
+    }
+    else
+    {
+        //haalt de teacher op
+        GetTeacher = "SELECT Teacher FROM Lesson WHERE Selected_Lesson = @0";
+        Teacher = db.QueryValue(GetTeacher, 1);
+
+        //haalt de naam van de les op
+        GetLessonName = "SELECT Lesson_name FROM Lesson WHERE Selected_Lesson = @0 ";
+        lesson_Titel = db.QueryValue(GetLessonName, 1);
+
+        //haalt het les stof op
+        GetLessonInfo = "SELECT Lesson_Material FROM Lesson WHERE Selected_Lesson = @0 ";
+        lesson_Info = db.QueryValue(GetLessonInfo, 1);
+
+        getlesson_Id = "SELECT Lesson_Id FROM Lesson WHERE Selected_Lesson = @0";
+        var k = db.QueryValue(getlesson_Id, 1);
+        if(k == null )
+        {
+            Response.Redirect("~/Lessons/NoLessons.cshtml");
+        }
+        lesson_id = db.QueryValue(getlesson_Id, 1);
+
+        //
+    }
+    //haalt alle lessen op
+    string GetOtherTitels = "SELECT Lesson_name, Teacher , Lesson_Id ,Selected_Lesson  FROM Lesson";
+    var rows = db.Query(GetOtherTitels);
+}
+<head>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+</head>
+
+<!DOCTYPE html>
+<html>
+<body style="background-color: #343a40">
+    <div class="container">
+        <div class="z-depth-5 y-depth-5 x-depth-5 white-text" style="min-width:100%; color:white; background-color: #343a40; margin:auto; display: inline-block; padding: 32px 48px 0px 48px; margin-top: 100px;">
+            <div>
+                <h4>@lesson_Titel | gegeven door @Teacher</h4>
+
+                <h6>@lesson_Info</h6>
+                <br />
+                <form method="post" action="~/Lessons/exampage?lesson_id=@lesson_id">
+                    <button style="margin-left:0%;" type='submit' name='btn_login' class='col  s6 btn btn-small white black-text  waves-effect z-depth-1 y-depth-1'>Quiz</button>
+                </form>
+
+            </div>
+            <ul>
+                @foreach (var row in rows)
+                {
+
+                    if (row.Selected_Lesson == true)
+                    {
+                        <li><a href="~/Lessons/Lessons.cshtml?Lesson_Id=@row.Lesson_Id">@row.Lesson_name</a> --- @row.Teacher is active</li>
+                    }
+                    else
+                    {
+                        <li><a href="~/Lessons/Lessons.cshtml?Lesson_Id=@row.Lesson_Id">@row.Lesson_name</a> --- @row.Teacher </li>
+                    }
+
+                }
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

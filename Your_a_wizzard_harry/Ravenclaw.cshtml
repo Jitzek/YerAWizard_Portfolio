@@ -1,0 +1,244 @@
+﻿@{
+    Layout = "~/_SiteLayout.cshtml";
+    Page.Title = "Ravenclaw";
+    PageData["current"] = "Houses";
+
+    string mail = "";
+    @Bobdehelper.Sessionnull();
+    mail = Session["mail"].ToString();
+
+    string nr1house = "";
+    int nr1points = 0;
+    string nr2house = "";
+    int nr2points = 0;
+    string nr3house = "";
+    int nr3points = 0;
+    string nr4house = "";
+    int nr4points = 0;
+    var pointdifference = 0;
+    string position = "";
+
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+    string provider = "System.Data.SqlClient";
+    Database db = Database.OpenConnectionString(connectionString, provider);
+
+    string checkrank = "";
+    var t = new Functions();
+    if (t.Rank(mail) == "Student" || t.Rank(mail) == "Teacher" || t.Rank(mail) == "Owner")
+    {
+        checkrank = t.Rank(mail);
+    }
+    else
+    {
+        Response.Redirect("~/login.cshtml");
+    }
+
+    int students = db.QuerySingle("SELECT COUNT(Username) AS Amount FROM Profiel WHERE House_House_Id = 3").Amount;
+
+    int TotalGryfDing = 0;
+    var SelectTotalPointsGryf = db.QuerySingle("SELECT SUM(User_Points) AS Total FROM Profiel Where House_House_Id = 1 AND Rank = 'Student'").Total;
+    if (SelectTotalPointsGryf != null)
+    {
+        TotalGryfDing = SelectTotalPointsGryf;
+    }
+
+    int TotalHufDing = 0;
+    var SelectTotalPointsHuf = db.QuerySingle("SELECT SUM(User_Points) AS Total FROM Profiel Where House_House_Id = 2 AND Rank = 'Student'").Total;
+    if (SelectTotalPointsHuf != null)
+    {
+        TotalHufDing = SelectTotalPointsHuf;
+    }
+
+    int TotalRavDing = 0;
+    var SelectTotalPointsRav = db.QuerySingle("SELECT SUM(User_Points) AS Total FROM Profiel Where House_House_Id = 3 AND Rank = 'Student'").Total;
+    if (SelectTotalPointsRav != null)
+    {
+        TotalRavDing = SelectTotalPointsRav;
+    }
+
+    int TotalSlythDing = 0;
+    var SelectTotalPointsSlyth = db.QuerySingle("SELECT SUM(User_Points) AS Total FROM Profiel Where House_House_Id = 4 AND Rank = 'Student'").Total;
+    if (SelectTotalPointsSlyth != null)
+    {
+        TotalSlythDing = SelectTotalPointsSlyth;
+    }
+
+    Functions functions = new Functions();
+    int[] positions = functions.GetPositions(TotalGryfDing, TotalHufDing, TotalRavDing, TotalSlythDing);
+
+    if (positions[2] == 1)
+    {
+        position = "1st";
+    }
+    if (positions[2] == 2)
+    {
+        position = "2nd";
+    }
+    if (positions[2] == 3)
+    {
+        position = "3rd";
+    }
+    if (positions[2] == 4)
+    {
+        position = "4th";
+    }
+}
+
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8" />
+    <title>@Page.Title - Yer a wizzard harry</title>
+    <link rel="stylesheet" href="~/Scripts/Layout.css" type="text/css" />
+    <link href="~/Scripts/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <link href="~/Scripts/Layout.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Crimson+Text" rel="stylesheet">
+    <meta name="viewport" content="width=device-width" />
+</head>
+<body style="background-color: #202225;">
+    <div>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <div class="panel panel-default">
+                    <div id="houseBackgr-Ra" class="userprofile social">
+                        <div style="padding-top: 20px;"></div>
+                        <div class="userpic"> <img style="width: 250px; height: 250px;" src="~/Images/Logo_Ravenclaw_shadow.png" alt="" class="userpicimg"> </div>
+                        <h3 style="font-weight: bold; color: #c8c8c8;" class="username">Ravenclaw</h3>
+                        <p style="font-weight: 700;"></p>
+                        <div class="socials tex-center">
+                            <a href="~/Gryffindor.cshtml" class="btn btn-circle btn-primary" id="houseGrBtn">
+                                <i class="#"></i>
+                            </a>
+                            <a href="~/Hufflepuff.cshtml" class="btn btn-circle btn-warning" id="houseHuBtn">
+                                <i class="#"></i>
+                            </a>
+                            <a href="~/Ravenclaw.cshtml" class="btn btn-circle btn-info" id="houseRaBtn">
+                                <i class="#"></i>
+                            </a>
+                            <a href="~/Slytherin.cshtml" class="btn btn-circle btn-danger" id="houseSlBtn">
+                                <i class="#"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <div id="houseInfo" class="col-md-12 border-bottom">
+                            <ul style="color: #dddddd" class="nav nav-pills pull-left countlist" role="tablist">
+                                <li role="presentation">
+                                    <h3>
+                                        @position<br>
+                                        <small class="sub-text">POSITION</small>
+                                    </h3>
+                                </li>
+                                <div style="padding-left: 35px;"></div>
+                                <li role="presentation">
+                                    <h3>
+                                        @TotalRavDing<br>
+                                        <small class="sub-text">POINTS</small>
+                                    </h3>
+                                </li>
+                                <div style="padding-left: 35px;"></div>
+                                <li role="presentation">
+                                    <h3>
+                                        @students<br>
+                                        <small class="sub-text">STUDENTS</small>
+                                    </h3>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="margin-bottom: 25px;"></div>
+    <div class="container">
+        <div class="row">
+            <div id="house-Wiki" class="col">
+                <h3 style="font-size: 34px; text-align: center; color: #dddddd;">About <span style="color: #0849e5">Ravenclaw</span></h3>
+                <br />
+                <h4 class="house-head">History</h4>
+                <p class="house-par">
+                    Ravenclaw is one of the four Houses of Hogwarts School of Witchcraft and Wizardry. Its founder was the medieval witch Rowena Ravenclaw.
+                    Members of this house are characterised by their wit, learning, and wisdom.
+                    The emblematic animal symbol is an eagle, and blue and bronze are its colours.
+                    The Head of Ravenclaw is Filius Flitwick and the house ghost is the Grey Lady, otherwise known as Helena Ravenclaw.
+                </p>
+                <p class="house-par">
+                    Ravenclaw corresponds roughly to the element of air, and it is for that reason that the House colours were chosen; blue and bronze represent the sky and eagle feathers respectively, both having much to do with air.
+                    The Ravenclaw points hourglass contains blue sapphires.
+                </p>
+                <br />
+                <h4 class="house-head">Traits</h4>
+                <p class="house-par">
+                    Ravenclaw House prizes learning, wisdom, wit, and intellect in its members.
+                    Thus, many Ravenclaws tend to be academically motivated and talented students.
+                    They also pride themselves in being original in their ideas, and methods.
+                    It's not unusual to find Ravenclaw students practising especially different types of magic that other houses might shun.
+                    Hermione Granger, an extremely intelligent witch and the top student in her year, was sorted into Gryffindor, though she admitted that the Sorting Hat had seriously considered placing her in Ravenclaw.
+                </p>
+                <br />
+                <p class="house-par">
+                    Ravenclaw House prizes learning, wisdom, wit, and intellect in its members.
+                    Thus, many Ravenclaws tend to be academically motivated and talented students.
+                    They also pride themselves in being original in their ideas, and methods.
+                    It's not unusual to find Ravenclaw students practising especially different types of magic that other houses might shun.
+                    Hermione Granger, an extremely intelligent witch and the top student in her year, was sorted into Gryffindor, though she admitted that the Sorting Hat had seriously considered placing her in Ravenclaw.
+                </p>
+                <br />
+                <p class="house-par">
+                    Often hard-working and diligent, as often is the case with intellectuals with a predisposition for academics, some of the pupils sorted under the blue-bronzed eagle are known to be inclined to dismiss certain social expectation for the sake of satisfying their own intellectual curiosity.
+                    Some of these eventually also ended up being not only accepted, but even celebrated, in spite of being initially subjected to scorn for their various oddities. Luna Lovegood, for example, was one such student: Eccentric to put it at its mildest, she was a Ravenclaw student who initially was bullied for her open defiance of conventionality, but ultimately became a celebrated wizarding naturalist and renowned for her participation in the legendary Battle of Hogwarts and past membership in Dumbledore's Army.
+                    Another example would be Professor Filius Flitwick, a half-goblin who might have faced scorn for his short stature earlier in life but went on to become a renowned Duelling Champion, and subsequently one of the finest and most knowledgable Charms Masters in the entirety of the wizarding world during his employment at Hogwarts School of Witchcraft and Wizardry.
+                    (The best, according to some of his students).
+                </p>
+                <br />
+                <p class="house-par">
+                    Ravenclaws tend to be curious about the world and pay attention to the world around them.
+                    Ravenclaws are known to be logical and rational.
+                </p>
+                <br />
+                <p class="house-par">
+                    Even so, not all Ravenclaws were motivated by academic prowess.
+                    Examples of such individuals included Gilderoy Lockhart and Cho Chang, both of whom sought to use the good name and renown of their house, the inherent expectations of certain academic prowess that comes with being sorted into it as well as the often somewhat natural ability of its members to gain popularity among their peers, which particularly was the case of the former, proving true the fact that a good student did not necessarily make a good witch or wizard.
+                </p>
+                <br />
+                <h4 class="house-head">Reputation</h4>
+                <p class="house-par">
+                    According to <span class="Sl-mention">Slytherin</span> prefect Gemma Farley, <span class="Ra-mention">Ravenclaws</span> are so competitive when it comes to academic success that they are known to back stab each other, and likely other students, in order to get top marks.
+                    While <span class="Hu-mention">Hufflepuff</span> prefect Gabriel Truman noted that they are so proud of the success of famous members, such as Laverne de Montmorency, that they claim any intelligent wizard as a member of <span class="Ra-mention">Ravenclaw</span> House, such as Bridget Wenlock, who was, in fact a <span class="Hu-mention">Hufflepuff</span>.
+                    Some <span class="Ra-mention">Ravenclaws</span>, such as Uric the Oddball, are also noted to have a propensity towards eccentricity.
+                    <br />
+                    <br />
+                    <span class="Ra-mention">Ravenclaw</span> House appears to have little rivalry with the other houses, except in Quidditch.
+                    Harry Potter believed that they tended to side with Gryffindor in its rivalry with <span class="Sl-mention">Slytherin</span>, as did <span class="Hu-mention">Hufflepuff</span> house. However, during the 1994 Triwizard Tournament, most <span class="Ra-mention">Ravenclaws</span> supported <span class="Hu-mention">Hufflepuff</span> Champion Cedric Diggory over Harry.
+                    They believed that Harry had in fact cheated his way into being a champion and that the true Hogwarts champion was Cedric.
+                    Many <span class="Ra-mention">Ravenclaws</span> (such as Cho Chang) joined Dumbledore's Army and fought in the Battle of Hogwarts along with <span class="Gr-mention">Gryffindor</span> and <span class="Hu-mention">Hufflepuffs</span>.
+                    They rose at almost the exact moment as the <span class="Hu-mention">Hufflepuffs</span> and turned their wands upon Pansy Parkinson and <span class="Sl-mention">Slytherin</span> House in Harry Potter's defence, when the former wished to hand Harry over to Lord Voldemort and his army of Death Eaters.
+                    <br />
+                    <br />
+                    Within the house, though, they’re well-known for being welcoming and encouraging of creativity, eccentricity and individuality and being very accepting.
+                </p>
+                <br />
+                <h4 class="house-head">Common Room</h4>
+                <p class="house-par">
+                    The Ravenclaw common room is in one of the castle's towers and is wide and circular.
+                    You have to climb a tight spiral staircase to get there.
+                    It has graceful arched windows, and the walls are hung with blue and bronze silks.
+                    The domed ceiling is painted with stars, which are echoed in the midnight-blue carpet.
+                    Tables, chairs, and bookcases cover the expanse of the floor, and a white-marble statue of
+                    Rowena Ravenclaw sits next to the door that leads to the dormitories above.
+                    Harry Potter entered the common room in 1998 while searching for clues to the location of one of Voldemort's Horcruxes.
+                    <br />
+                    <br />
+                    Unlike the other common rooms in the school, a logical riddle given by a bronze eagle-shaped knocker must be answered to enter.
+                    This could prove troublesome as anyone with enough intellect could intrude into the dormitory, as is shown in 1998 where Professor McGonagall had no trouble entering by answering the riddle correctly (though she was a "hatstall" between Gryffindor and Ravenclaw).
+                    However, Hermione stated in her first year when figuring out the complicated riddle, beneath the trapdoor, that most wizards and witches do not have much sense of logic, which might be something that Ravenclaw noticed herself and decided to use clever riddles instead of passwords, as they are safer than some words.
+                </p>
+                <p class="house-par" style="color: white;">Source: <a href="https://harrypotter.fandom.com/wiki/Ravenclaw">https://harrypotter.fandom.com/wiki/Ravenclaw</a></p>
+            </div>
+        </div>
+    </div>
+    <br />
+    <link rel="stylesheet" href="~/Scripts/Layout.css" type="text/css" />
+</body>
+

@@ -1,0 +1,333 @@
+﻿@{
+    Layout = "~/_SiteLayout.cshtml";
+    Page.Title = "Slytherin";
+    PageData["current"] = "Houses";
+
+    string mail = "";
+    @Bobdehelper.Sessionnull();
+    mail = Session["mail"].ToString();
+
+    string nr1house = "";
+    int nr1points = 0;
+    string nr2house = "";
+    int nr2points = 0;
+    string nr3house = "";
+    int nr3points = 0;
+    string nr4house = "";
+    int nr4points = 0;
+    var pointdifference = 0;
+    string position = "";
+
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+    string provider = "System.Data.SqlClient";
+    Database db = Database.OpenConnectionString(connectionString, provider);
+
+    string checkrank = "";
+    var t = new Functions();
+    if (t.Rank(mail) == "Student" || t.Rank(mail) == "Teacher" || t.Rank(mail) == "Owner")
+    {
+        checkrank = t.Rank(mail);
+    }
+    else
+    {
+        Response.Redirect("~/login.cshtml");
+    }
+
+    int students = db.QuerySingle("SELECT COUNT(Username) AS Amount FROM Profiel WHERE House_House_Id = 4").Amount;
+
+    int TotalGryfDing = 0;
+    var SelectTotalPointsGryf = db.QuerySingle("SELECT SUM(User_Points) AS Total FROM Profiel Where House_House_Id = 1 AND Rank = 'Student'").Total;
+    if (SelectTotalPointsGryf != null)
+    {
+        TotalGryfDing = SelectTotalPointsGryf;
+    }
+
+    int TotalHufDing = 0;
+    var SelectTotalPointsHuf = db.QuerySingle("SELECT SUM(User_Points) AS Total FROM Profiel Where House_House_Id = 2 AND Rank = 'Student'").Total;
+    if (SelectTotalPointsHuf != null)
+    {
+        TotalHufDing = SelectTotalPointsHuf;
+    }
+
+    int TotalRavDing = 0;
+    var SelectTotalPointsRav = db.QuerySingle("SELECT SUM(User_Points) AS Total FROM Profiel Where House_House_Id = 3 AND Rank = 'Student'").Total;
+    if (SelectTotalPointsRav != null)
+    {
+        TotalRavDing = SelectTotalPointsRav;
+    }
+
+    int TotalSlythDing = 0;
+    var SelectTotalPointsSlyth = db.QuerySingle("SELECT SUM(User_Points) AS Total FROM Profiel Where House_House_Id = 4 AND Rank = 'Student'").Total;
+    if (SelectTotalPointsSlyth != null)
+    {
+        TotalSlythDing = SelectTotalPointsSlyth;
+    }
+
+    Functions functions = new Functions();
+    int[] positions = functions.GetPositions(TotalGryfDing, TotalHufDing, TotalRavDing, TotalSlythDing);
+
+    if (positions[3] == 1)
+    {
+        position = "1st";
+    }
+    if (positions[3] == 2)
+    {
+        position = "2nd";
+    }
+    if (positions[3] == 3)
+    {
+        position = "3rd";
+    }
+    if (positions[3] == 4)
+    {
+        position = "4th";
+    }
+}
+
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8" />
+    <title>@Page.Title - Yer a wizzard harry</title>
+    <link rel="stylesheet" href="~/Scripts/Layout.css" type="text/css" />
+    <link href="~/Scripts/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <link href="~/Scripts/Layout.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Crimson+Text" rel="stylesheet">
+    <meta name="viewport" content="width=device-width" />
+</head>
+<body style="background-color: #202225;">
+    <div>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <div class="panel panel-default">
+                    <div id="houseBackgr-Sl" class="userprofile social">
+                        <div style="padding-top: 20px;"></div>
+                        <div class="userpic"> <img style="width: 250px; height: 250px;" src="~/Images/Logo_Slytherin_shadow.png" alt="" class="userpicimg"> </div>
+                        <h3 style="font-weight: bold; color: #c8c8c8;" class="username">Slytherin</h3>
+                        <p style="font-weight: 700;"></p>
+                        <div class="socials tex-center">
+                            <a href="~/Gryffindor.cshtml" class="btn btn-circle btn-primary" id="houseGrBtn">
+                                <i class="#"></i>
+                            </a>
+                            <a href="~/Hufflepuff.cshtml" class="btn btn-circle btn-warning" id="houseHuBtn">
+                                <i class="#"></i>
+                            </a>
+                            <a href="~/Ravenclaw.cshtml" class="btn btn-circle btn-info" id="houseRaBtn">
+                                <i class="#"></i>
+                            </a>
+                            <a href="~/Slytherin.cshtml" class="btn btn-circle btn-danger" id="houseSlBtn">
+                                <i class="#"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <div id="houseInfo" class="col-md-12 border-bottom">
+                            <ul style="color: #dddddd" class="nav nav-pills pull-left countlist" role="tablist">
+                                <li role="presentation">
+                                    <h3>
+                                        @position<br>
+                                        <small class="sub-text">POSITION</small>
+                                    </h3>
+                                </li>
+                                <div style="padding-left: 35px;"></div>
+                                <li role="presentation">
+                                    <h3>
+                                        @TotalSlythDing<br>
+                                        <small class="sub-text">POINTS</small>
+                                    </h3>
+                                </li>
+                                <div style="padding-left: 35px;"></div>
+                                <li role="presentation">
+                                    <h3>
+                                        @students<br>
+                                        <small class="sub-text">STUDENTS</small>
+                                    </h3>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="margin-bottom: 25px;"></div>
+    <div class="container">
+        <div class="row">
+            <div id="house-Wiki" class="col">
+                <h3 style="font-size: 34px; text-align: center; color: #dddddd;">About <span style="color: #11721c">Slytherin</span></h3>
+                <br />
+                <h4 class="house-head">History</h4>
+                <p class="house-par">
+                    Slytherin is one of the four Houses at Hogwarts School of Witchcraft and Wizardry, founded by Salazar Slytherin.
+                    In establishing the house, Salazar instructed the Sorting Hat to pick students who had a few particular characteristics he most valued.
+                    Those characteristics include: cunning, resourcefulness, and ambition.
+                    Many Slytherin students tend to clique together, often acquiring leaders, which further exemplifies Slytherin's ambitious qualities.
+                    Examples of these include Draco Malfoy’s Gang and the Death Eaters.
+                </p>
+                <p class="house-par">
+                    The founder highly valued and favoured pure-blood students and the Sorting Hat admitted that it can be a factor when being Sorted.
+                    Students of any blood status can now be placed in the house. However, a Muggle-Born student from that house is considered to be quite rare.
+                </p>
+                <br />
+                <p class="house-par">
+                    The emblematic animal of the house is a snake and its colours are green and silver.
+                    There were two notable heads of the house; Horace Slughorn took the role twice (first leaving in 1981 and then taking the role again from 1997 until leaving before 2016), and Severus Snape.
+                    The patron ghost of the house is the Bloody Baron
+                </p>
+                <br />
+                <p class="house-par">
+                    Slytherin corresponds roughly with the element of water due to serpents being commonly associated with the sea and lochs in western European mythology, as well as serpents being physically fluid and flexible animals.
+                    Similarly, in Celtic mythology, water is seen as a portal to another world, leading some to speculate that the element was chosen to symbolise many Slytherins' hope for a pure-blood only community.
+                    The colours also correspond with waters around lakes and lochs often being green, and silver being often associated with grey rain water.
+                </p>
+                <br />
+                <p class="house-par">
+                    This created great controversy at Hogwarts and it was the root of a feud between former friends Salazar and Godric Gryffindor.
+                    Salazar would later decide to leave the school when an argument started between him and Godric and they either duelled or started a civil war between the two houses.
+                    Such an argument would be forever known the origin of the feud between their two houses and also make them as the houses that are most competitive.
+                </p>
+                <br />
+                <p class="house-par">
+                    When Salazar departed Hogwarts, he would leave behind the Chamber of Secrets with the purpose of an heir one day opening the chamber and unleashing a means of purging the school of those who, in Slytherin's view, were unworthy to study magic: Muggle-borns.
+                    The chamber was opened twice and the monster was killed the second time by Harry Potter in 1993.
+                    Salazar’s views at the time could be attributed to the persecution of witches and wizards at the hand of Muggles during that century.
+                </p>
+                <br />
+                <br />
+                <h4 class="house-head">Traits</h4>
+                <p class="house-par">
+                    Slytherins tend to be ambitious, shrewd, cunning, strong leaders, and achievement-oriented.
+                    They also have highly developed senses of self-preservation. This means that Slytherins tend to hesitate before acting, so as to weigh all possible outcomes before deciding exactly what should be done.
+                </p>
+                <br />
+                <p class="house-par">
+                    According to Albus Dumbledore, the qualities which Salazar valued in the students he had chosen included cleverness, resourcefulness, determination, and "a certain disregard for the rules."
+                    Dumbledore noted that all of these were qualities possessed by Harry Potter, who was in Gryffindor but almost placed in Slytherin.
+                </p>
+                <br />
+                <p class="house-par">
+                    Slytherins tend to take charge and possess strong leadership skills.
+                    Slytherins are often self-assured and confident of their own competence and can be very loyal.
+                </p>
+                <br />
+                <p class="house-par">
+                    Another characteristic some Slytherins share is a tendency towards deep, unrequited love.
+                    Severus Snape and The Bloody Baron held abiding but unreturned feelings for Lily Evans and Helena Ravenclaw, respectively. Although some Slytherins, such as Tom Riddle, were incapable of feeling love at all, those that did were known to cherish their passion abidingly and unconditionally, although often tragically due to an inability to act appropriately on their feelings.
+                    Interestingly, Bellatrix Lestrange held feelings for Tom Riddle himself, which was a factor in her fanatical devotion to the Death Eaters; although Lord Voldemort was incapable of loving her in return, the existence of Delphini suggests that there was at least some kind of intimacy between them.
+                    Although Merope Riddle likely never attended Hogwarts and therefore wouldn't have been sorted into Slytherin at all, she was a descendant of Slytherin himself and fit the pattern of those sorted into his house, as she held deep and unreturned feelings for Tom Riddle Snr, who often travelled by her house on his carriage.
+                </p>
+                <br />
+                <p class="house-par">
+                    Even so, not all Ravenclaws were motivated by academic prowess.
+                    Examples of such individuals included Gilderoy Lockhart and Cho Chang, both of whom sought to use the good name and renown of their house, the inherent expectations of certain academic prowess that comes with being sorted into it as well as the often somewhat natural ability of its members to gain popularity among their peers, which particularly was the case of the former, proving true the fact that a good student did not necessarily make a good witch or wizard.
+                </p>
+                <br />
+                <p class="house-par">
+                    The Sorting Hat claims that blood purity was a factor in selecting Slytherins.
+                    It is not the main factor but it suggests that the sorting hat takes into account the lineage of the student as well as traits.
+                    Muggle-born Slytherins exist, but are very rare, as noted insultingly by Scabior the Snatcher.
+                </p>
+                <br />
+                <p class="house-par">
+                    There have also been definite examples of half-bloods sorted into the house, including Tom Riddle, Dolores Umbridge, and Severus Snape. Harry Potter was nearly sorted into Slytherin, but because he asked for it, he ended up in Gryffindor instead. Also, pure-bloods are not automatically placed in Slytherin.
+                    There have been various examples of pure-bloods sorted into other houses; the Weasley family, Sirius Black, Neville Longbottom, and James Potter were all sorted into Gryffindor house, Ernie Macmillan was sorted into Hufflepuff, and Morag MacDougal and Stephen Cornfoot were both sorted into Ravenclaw.
+                </p>
+                <br />
+                <p class="house-par">
+                    The concept of blood purity playing a part in picking students for Slytherin house stems from the founder Salazar Slytherin who wanted a stricter policy of admission to the school — one limited strictly to pure-blood students.
+                    This was contrary to the wishes of the other founders at Hogwarts School of Witchcraft and Wizardry, who wanted to accept students of any blood status.
+                </p>
+                <br />
+                <p class="house-par">
+                    It is important to note that not every student in Slytherin agrees with the idea of blood purity, but every member would still be affiliated with their founder’s reputed views a thousand years later.
+                    Since the house would nearly always select students who share his view for that house, many members would still give that impression of that house during their time at Hogwarts. For example, in December 1992, the password for the common room was pureblood.
+                </p>
+                <br />
+                <br />
+                <h4 class="house-head">Reputation</h4>
+                <p class="house-par">
+                    <span class="Sl-mention">Slytherin</span> and <span class="Gr-mention">Gryffindor</span> are generally rivals in Quidditch and for the House Cup, of which the former had won seven years in a row prior to Harry Potter's arrival at Hogwarts in 1991.
+                    It is also rare for <span class="Sl-mention">Slytherin</span> and <span class="Gr-mention">Gryffindor</span> students to be friendly with one another, and is also quite common for them to share animosity.
+                    There are exceptions, such as <span class="Sl-mention">Slytherin</span> Merlin Merlin who had a friendship with <span class="Gr-mention">Gryffindor</span> Sir Cadogan and <span class="Sl-mention">Slytherin</span> Severus Snape and <span class="Gr-mention">Gryffindor</span> Lily Evans, who were best friends until Snape's use of the slur "Mudblood" as well as his aspirations to be a Death Eater caused Lily to sever their ties.
+                    <br />
+                    <br />
+                    Their rivalry was particularly the case during the First and Second Wizarding Wars.
+                    During the second war, no <span class="Sl-mention">Slytherin</span> student joined the association known as Dumbledore's Army; however, this is likely the fault of Hermione Granger, Ron Weasley, and Harry Potter, who only invited people they trusted.
+                    The three also shared a deep mistrust of any <span class="Sl-mention">Slytherins</span>.
+                    <br />
+                    <br />
+                    There is a terrible tension, rivalry, and dislike among <span class="Gr-mention">Gryffindors</span> Harry Potter, Hermione Granger, and Ronald Weasly, and <span class="Sl-mention">Slytherin</span> Draco Malfoy to the point that Hermione even once punched Draco.
+                    Also, from the moment Harry and Draco met, they became immediate enemies.
+                    <br />
+                    <br />
+                    <span class="Sl-mention">Slytherin's</span> relationship with the other two houses, Hufflepuff and <span class="Ra-mention">Ravenclaw</span>, was variable.
+                    By the time of Harry Potter's years at Hogwarts, <span class="Hu-mention">Hufflepuff</span> and <span class="Ra-mention">Ravenclaw</span> were frustrated at <span class="Sl-mention">Slytherin</span> seven-year winning streak and readily supported <span class="Gr-mention">Gryffindor</span> in their efforts to break it, to the extent that they even turned against Harry and his friends when their rule-breaking cost <span class="Gr-mention">Gryffindor</span> 150 points (and thus the lead) with <span class="Sl-mention">Slytherin</span> rubbing it in at every opportunity.
+                    This persisted generally with Quidditch matches, where Ravenclaw and <span class="Hu-mention">Hufflepuff</span> supported <span class="Gr-mention">Gryffindor</span> by default if they were facing <span class="Sl-mention">Slytherin</span>.
+                    <br />
+                    <br />
+                    When Harry was named as a Hogwarts Triwizard champion alongside Cedric Diggory of <span class="Hu-mention">Hufflepuff</span>, the three other houses assumed he was trying to steal <span class="Hu-mention">Hufflepuff's</span> glory and supported Cedric as the 'real' Hogwarts champion, though <span class="Sl-mention">Slytherin</span> likely only did this out of spite for Harry rather than any actual support for Cedric.
+                    After Cedric's death by Lord Voldemort's hands, <span class="Sl-mention">Slytherin</span> joined the rest in toasting his memory but some, like Draco Malfoy, were not saddened by his death.
+                    <br />
+                </p>
+                <p class="house-par">
+                    <span class="Sl-mention">Slytherin</span> has a such well-known reputation for creating dark witches and wizards that many would even say that every dark witch or wizard was actually in <span class="Sl-mention">Slytherin</span>.
+                    While it is true that many were in the house, it is untrue to say every single one of them was, as Peter Pettigrew, betrayer of James and Lily, was in <span class="Gr-mention">Gryffindor</span> and Quirinus Quirrell was in <span class="Ra-mention">Ravenclaw</span>.
+                    <br />
+                    <br />
+                    It appears that reputation has led to an ironic prejudice against the entire house.
+                    It is unknown how many dark witches and wizards were from this house before Tom Riddle began recruiting Death Eaters but many of them came from a family that valued blood purity and would prefer, like Riddle, to be in the house and recruit from there.
+                    <br />
+                    <br />
+                    In fairer terms, there were many good witches and wizards in the house who opposed the use of the Dark Arts, as well as discrimination based on blood purity, such as Horace Slughorn, Andromeda Tonks, and Leta Lestrange.
+                    Andromeda was related to many dark witches and wizards, such as her own sister Bellatrix Lestrange, and brother-in-law Lucius Malfoy, but she chose to forsake the loyalty to her family in favour of marrying the Muggle-born Ted Tonks.
+                    Leta was quite different from the majority of her family with her kind, albeit self-deprecating and bitter, personality, her love for both Newt Scamander and Theseus Scamander, her career ambition without ruthlessness, and her self-sacrificing bravery in the face of Gellert Grindelwald, in stark contrast to the the usually compassionate Queenie of house Pukwudgie, who joined Grindelwald rather quickly.
+                    Also, the allegiance of Severus Snape was found to ultimately be towards Albus Dumbledore to the point of serving as a triple agent for the Order of the Phoenix, in stark contrast to Peter Pettigrew, the former <span class="Gr-mention">Gryffindor</span> who became a double agent for the Death Eaters instead. Merlin (of King Arthur fame) was also a <span class="Sl-mention">Slytherin</span>.
+                    <br />
+                    <br />
+                    It might also be possible (though quite unlikely) that the Sorting Hat simply sorts anyone with ill intentions into Slytherin, regardless of whether they possess cunning and ambition, which helped to unfairly give this house a bad name.
+                    Vincent Crabbe and Gregory Goyle were both incredibly stupid and did not have clever or cunning minds, but were still sorted into <span class="Sl-mention">Slytherin</span>.
+                    They could have possessed one of the minor traits as even Peter Pettigrew was not placed into <span class="Gr-mention">Gryffindor</span> for bravery, but for chivalry instead.
+                    <br />
+                    <br />
+                    It is also likely that Crabbe and Goyle were simply placed there by process of elimination, since they exhibited virtually none of the qualities valued by any of the other houses (lacking the work ethic or honesty of <span class="Hu-mention">Hufflepuff</span>, the academic prowess of Ravenclaw, or the bravery of <span class="Gr-mention">Gryffindor</span>).
+                    The Sorting Hat simply could have took into account what house they wished to be placed in which, with their family history, was most likely <span class="Sl-mention">Slytherin</span>.
+                    <br />
+                    <br />
+                    The behaviour of <span class="Sl-mention">Slytherin</span> house at the Battle of Hogwarts is also debated.
+                    The majority of their members departed Hogwarts before the battle started and a few joined their families in becoming Death Eaters.
+                    However, many of them returned to Hogwarts to fight against the Death Eaters and were led back by their Head of House, Horace Slughorn.
+                    <br />
+                    <br />
+                    The traits of the house are considered obvious examples of people turning toward an ill purpose such as cunning and ambition but they are not inherently negative.
+                    Furthermore, traits from the rest of the houses such as daring, intelligence, and loyalty can also become easily negative.
+                    <br />
+                    <br />
+                    Another trait which could be seen as a negative one is self-preservation.
+                    The idea that many of them seem to value their own lives more than the lives of others can make them less thought of and trusted, but that is not always the case.
+                    Phineas Nigellus gave that impression when he saw Harry Potter trying to run away, because he was afraid that his presence was putting his friends in danger.
+                    He stated that <span style="font-style: italic;">"We <span style="font-style: italic;" class="Sl-mention">Slytherins</span> are brave, yes, but not stupid. For instance, when given the choice, we will always choose to save our own necks"</span>.
+                    <br />
+                    <br />
+                    There are exceptions to this rule, however, such as Snape, who Harry said was a <span style="font-style: italic;">"<span style="font-style: italic;" class="Sl-mention">Slytherin</span> and... probably the bravest man I ever knew"</span>, and Regulus Black, who gave his life in an attempt to destroy one of the Horcruxes of Lord Voldemort and told his house-elf Kreacher to save himself and leave.
+                    <br />
+                    <br />
+                    The truth is that while most Dark wizards are <span class="Sl-mention">Slytherins</span>, many members of <span class="Sl-mention">Slytherin</span> House do not have Dark leanings and are even kind and accepting, while smaller groups of Voldemort's supporters are aligned with other Houses. During the Battle of Hogwarts, while all of the <span class="Sl-mention">Slytherin</span> students left the school before the fighting started, several of them did return with Professor Slughorn as reinforcements to join the fight against Lord Voldemort and his Death Eaters, and some decided to fight as a part of Dumbledore’s Army.
+                </p>
+                <br />
+                <br />
+                <h4 class="house-head">Common Room</h4>
+                <p class="house-par">
+                    The <span class="Sl-mention">Slytherin</span> common room is in the dungeons of Hogwarts Castle and underneath the Black Lake.
+                    Because of this, the light in the common room is green.
+                    Harry Potter along with Ron Weasley entered the common room in his second year to find out if Draco Malfoy was the one opening the Chamber of Secrets.
+                    To enter the <span class="Sl-mention">Slytherin</span> common room one must merely speak aloud the current password in front of a stretch of damp stone wall; once the word is uttered a concealed stone door will slide aside leaving a rectangular hole in the wall leading to the <span class="Sl-mention">Slytherin</span> common room.
+                    The only known <span class="Sl-mention">Slytherin</span> password is "pureblood", used in 1992.
+                </p>
+                <p class="house-par" style="color: white;">Source: <a href="https://harrypotter.fandom.com/wiki/Slytherin">https://harrypotter.fandom.com/wiki/Slytherin</a></p>
+            </div>
+        </div>
+    </div>
+    <br />
+    <link rel="stylesheet" href="~/Scripts/Layout.css" type="text/css" />
+</body>
+

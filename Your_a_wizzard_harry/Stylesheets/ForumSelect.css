@@ -1,0 +1,394 @@
+﻿body {
+    background: #eee;
+}
+
+.white-bg {
+    background-color: #ffffff;
+}
+
+.page-heading {
+    border-top: 0;
+    padding: 0 10px 20px 10px;
+}
+
+.forum-post-container .media {
+    margin: 10px 10px 10px 10px;
+    padding: 20px 10px 20px 10px;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.forum-avatar {
+    float: left;
+    margin-right: 20px;
+    text-align: center;
+    width: 110px;
+}
+
+    .forum-avatar .img-circle {
+        height: 48px;
+        width: 48px;
+    }
+
+.author-info {
+    color: #676a6c;
+    font-size: 11px;
+    margin-top: 5px;
+    text-align: center;
+}
+
+.forum-post-info {
+    padding: 9px 12px 6px 12px;
+    background: #f9f9f9;
+    border: 1px solid #f1f1f1;
+}
+
+.media-body > .media {
+    background: #f9f9f9;
+    border-radius: 3px;
+    border: 1px solid #f1f1f1;
+}
+
+.forum-post-container .media-body .photos {
+    margin: 10px 0;
+}
+
+.forum-photo {
+    max-width: 140px;
+    border-radius: 3px;
+}
+
+.media-body > .media .forum-avatar {
+    width: 70px;
+    margin-right: 10px;
+}
+
+    .media-body > .media .forum-avatar .img-circle {
+        height: 38px;
+        width: 38px;
+    }
+
+.mid-icon {
+    font-size: 66px;
+}
+
+.forum-item {
+    margin: 10px 0;
+    padding: 10px 0 20px;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.views-number {
+    font-size: 24px;
+    line-height: 18px;
+    font-weight: 400;
+}
+
+.forum-container,
+.forum-post-container {
+    padding: 30px !important;
+}
+
+.forum-item small {
+    color: #999;
+}
+
+.forum-item .forum-sub-title {
+    color: #dddddd;
+    margin-left: 50px;
+}
+
+.forum-title {
+    margin: 15px 0 15px 0;
+}
+
+.forum-info {
+    text-align: center;
+}
+
+.forum-desc {
+    color: #999;
+}
+
+.forum-icon {
+    float: left;
+    width: 30px;
+    margin-right: 20px;
+    text-align: center;
+}
+
+a.forum-item-title {
+    color: inherit;
+    display: block;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+    a.forum-item-title:hover {
+        color: inherit;
+    }
+
+.forum-icon .fa {
+    font-size: 30px;
+    margin-top: 8px;
+    color: #9b9b9b;
+}
+
+.forum-item.active .fa {
+    color: #007aff;
+}
+
+.forum-item.active a.forum-item-title {
+    color: #007aff;
+}
+
+@media (max-width: 992px) {
+    .forum-info {
+        margin: 15px 0 10px 0;
+        /* Comment this is you want to show forum info in small devices */
+        display: none;
+    }
+
+    .forum-desc {
+        float: none !important;
+    }
+}
+
+.ibox {
+    clear: both;
+    margin-bottom: 25px;
+    margin-top: 0;
+    padding: 0;
+}
+
+    .ibox.collapsed .ibox-content {
+        display: none;
+    }
+
+    .ibox.collapsed .fa.fa-chevron-up:before {
+        content: "\f078";
+    }
+
+    .ibox.collapsed .fa.fa-chevron-down:before {
+        content: "\f077";
+    }
+
+    .ibox:after,
+    .ibox:before {
+        display: table;
+    }
+
+.ibox-title {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #ffffff;
+    border-color: #e7eaec;
+    border-image: none;
+    border-style: solid solid none;
+    border-width: 3px 0 0;
+    color: inherit;
+    margin-bottom: 0;
+    padding: 14px 15px 7px;
+    min-height: 48px;
+}
+
+.ibox-content {
+    background-color: #ffffff;
+    color: inherit;
+    padding: 15px 20px 20px 20px;
+    border-color: #e7eaec;
+    border-image: none;
+    border-style: solid solid none;
+    border-width: 1px 0;
+}
+
+.ibox-footer {
+    color: inherit;
+    border-top: 1px solid #e7eaec;
+    font-size: 90%;
+    background: #ffffff;
+    padding: 10px 15px;
+}
+
+.message-input {
+    height: 90px !important;
+}
+
+.form-control, .single-line {
+    background-color: #FFFFFF;
+    background-image: none;
+    border: 1px solid #e5e6e7;
+    border-radius: 1px;
+    color: inherit;
+    display: block;
+    padding: 6px 12px;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    width: 100%;
+    font-size: 14px;
+}
+
+.text-navy {
+    color: #1ab394;
+}
+
+.mid-icon {
+    font-size: 66px !important;
+}
+
+.m-b-sm {
+    margin-bottom: 10px;
+}
+
+.add-btn {
+    background: none;
+    color: #007aff;
+    border: solid 0.5px #007aff;
+    font-size: 16px;
+    padding: 4px;
+}
+    .add-btn:hover {
+        color: #0070ea;
+        text-decoration: none;
+    }
+
+.select {
+    
+}
+
+#EdDel {
+    margin-left: 90%;
+}
+@media only screen and (max-width: 600px) {
+    #EdDel {
+        margin-left: 80%;
+    }
+}
+
+/* Delete */
+
+body {
+    font-family: 'Varela Round', sans-serif;
+}
+
+.modal-confirm {
+    color: #636363;
+}
+
+    .modal-confirm .modal-content {
+        padding: 20px;
+        border-radius: 5px;
+        border: none;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .modal-confirm .modal-header {
+        border-bottom: none;
+        position: relative;
+    }
+
+    .modal-confirm h4 {
+        text-align: center;
+        font-size: 26px;
+        margin: 30px 0 -10px;
+    }
+
+    .modal-confirm .close {
+        position: absolute;
+        top: -5px;
+        right: -2px;
+    }
+
+    .modal-confirm .modal-body {
+        color: #999;
+    }
+
+    .modal-confirm .modal-footer {
+        border: none;
+        text-align: center;
+        border-radius: 5px;
+        font-size: 13px;
+        padding: 10px 15px 25px;
+    }
+
+        .modal-confirm .modal-footer a {
+            color: #999;
+        }
+
+    .modal-confirm .icon-box {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+        border-radius: 50%;
+        z-index: 9;
+        text-align: center;
+        border: 3px solid #f15e5e;
+    }
+
+        .modal-confirm .icon-box i {
+            color: #f15e5e;
+            font-size: 46px;
+            display: inline-block;
+            margin-top: 13px;
+        }
+
+    .modal-confirm .btn {
+        color: #fff;
+        border-radius: 4px;
+        background: #60c7c1;
+        text-decoration: none;
+        transition: all 0.4s;
+        line-height: normal;
+        min-width: 120px;
+        border: none;
+        min-height: 40px;
+        border-radius: 3px;
+        margin: 0 5px;
+        outline: none !important;
+    }
+
+    .modal-confirm .btn-info {
+        background: #c1c1c1;
+    }
+
+        .modal-confirm .btn-info:hover, .modal-confirm .btn-info:focus {
+            background: #a8a8a8;
+        }
+
+    .modal-confirm .btn-danger {
+        background: #f15e5e;
+    }
+
+        .modal-confirm .btn-danger:hover, .modal-confirm .btn-danger:focus {
+            background: #ee3535;
+        }
+
+.trigger-btn {
+    display: inline-block;
+    margin: 100px auto;
+}
+
+#delBtn {
+    color: #a00000;
+    background: none;
+    border: solid #a00000;
+    cursor: pointer;
+}
+    #delBtn:hover {
+        color: white;
+        background-color: #a00000;
+    }
+
+.select-icon {
+    font-family: 'FontAwesome', 'Second Font name'
+}
+
+.link-replace {
+    color: #007aff;
+    font-weight: bold;
+}
+.link-replace-white {
+    color: white;
+    font-weight: bold;
+}

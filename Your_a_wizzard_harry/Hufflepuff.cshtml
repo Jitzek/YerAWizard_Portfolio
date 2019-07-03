@@ -63,7 +63,7 @@
         TotalSlythDing = SelectTotalPointsSlyth;
     }
 
-    Functions functions = new Functions();
+    /*Functions functions = new Functions();
     int[] positions = functions.GetPositions(TotalGryfDing, TotalHufDing, TotalRavDing, TotalSlythDing);
 
     if (positions[1] == 1)
@@ -81,7 +81,7 @@
     if (positions[1] == 4)
     {
         position = "4th";
-    }
+    }*/
 }
 <!DOCTYPE html>
 <head>
@@ -94,7 +94,7 @@
     <link href="https://fonts.googleapis.com/css?family=Crimson+Text" rel="stylesheet">
     <meta name="viewport" content="width=device-width" />
 </head>
-<body style="background-color: #202225;">
+<body style="background-color: #202225;" onload="getPos(@TotalGryfDing, @TotalHufDing, @TotalRavDing, @TotalSlythDing, 1)">
     <div>
         <div class="row">
             <div class="col-md-12 text-center">
@@ -124,7 +124,7 @@
                             <ul style="color: #dddddd" class="nav nav-pills pull-left countlist" role="tablist">
                                 <li role="presentation">
                                     <h3>
-                                        @position<br>
+                                        <span id="position"></span><br>
                                         <small class="sub-text">POSITION</small>
                                     </h3>
                                 </li>
@@ -220,4 +220,5 @@
     </div>
     <br />
     <link rel="stylesheet" href="~/Scripts/Layout.css" type="text/css" />
+    <script type="text/javascript" src="~/Scripts/functions.js"></script>
 </body>

@@ -1,0 +1,200 @@
+﻿@{ 
+    Validation.RequireField("title", "Please type in a Title");
+    Validation.RequireField("description", "Please type in a Desciption");
+
+    string Title = "";
+    string Description = "";
+    string Category = "";
+    string IsPrivate = "";
+    string Icon = "";
+    string Rank = "";
+
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+    string provider = "System.Data.SqlClient";
+    Database db = Database.OpenConnectionString(connectionString, provider);
+
+    if (Session["mail"] != null)
+    {
+        var userData = db.QuerySingle("SELECT * FROM Profiel WHERE Email = @0", Session["mail"]);
+        Rank = userData.Rank;
+    }
+    else
+    {
+        Response.Redirect("~/login.cshtml");
+    }
+
+    if (Rank == "Teacher" || Rank == "Owner")
+    {
+        if (Request.QueryString["ForumId"] != null)
+        {
+            var Data = db.QuerySingle("SELECT * FROM Forum WHERE Forum_Id = @0", Request.QueryString["ForumId"].AsInt());
+            Title = Data.Forum_name;
+            Description = Data.Description;
+            Category = Data.Category;
+            IsPrivate = Data.IsPrivate;
+            Icon = Data.Icon;
+        }
+
+        if (IsPost && Validation.IsValid())
+        {
+            Title = Request.Form["title"];
+            Description = Request.Form["description"];
+            Category = Request.Form["category"];
+            if (Request.Form["isprivate"] == null)
+            {
+                IsPrivate = "N";
+            }
+            else
+            {
+                IsPrivate = "Y";
+            }
+            Icon = Request.Form["icon"];
+
+            if (Request.QueryString["ForumId"] != null)
+            {
+                db.Execute("UPDATE Forum SET Forum_name = @0, Description = @1, Category = @2, IsPrivate = @3, Icon = @4 WHERE Forum_Id = @5", Title, Description, Category, IsPrivate, Icon, Request.QueryString["ForumId"].AsInt());
+                Response.Redirect("~/ForumPage.cshtml");
+            }
+            else
+            {
+                db.Execute("INSERT INTO Forum(Forum_name, Description, Category, IsPrivate, Icon) VALUES(@0, @1, @2, @3, @4)", Title, Description, Category, IsPrivate, Icon);
+                Response.Redirect("~/ForumPage.cshtml");
+            }
+        }
+    }
+    else { Response.Redirect("~/ForumPage.cshtml"); }
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title></title>
+    <link href="~/Stylesheets/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link href="~/Stylesheets/Forum.css" rel="stylesheet" type="text/css" />
+    <link href="~/Stylesheets/Layout.css" rel="stylesheet" type="text/css" />
+    <meta charset="utf-8" />
+</head>
+<body style="background-color: #202225;">
+    <div class="container">
+        <center>
+            <div style="padding-bottom: 50px;"></div>
+            <div class="col-md-4" style="background: url(../Images/scroll.jpg) no-repeat center; background-size: cover;">
+                <div style="padding-top: 30px;"></div>
+                <form class="form-horizontal" action="" method="post" id="myform">
+                    <div class="form-group">
+                        <label style="color: black;" for="title">Forum Title</label>
+                        @if (Title != "")
+                        {
+                            <input style="background: url(../Images/scroll.jpg) no-repeat center; border-radius: 10px;" type="text" class="form-control" id="question" name="title" placeholder="Type Forum Title Here" cols="40" rows="5" style="resize:vertical;" value="@Title" required>
+                        }
+                        else
+                        {
+                            <input style="background: url(../Images/scroll.jpg) no-repeat center; border-radius: 10px;" type="text" class="form-control" id="question" name="title" placeholder="Type Forum Title Here" cols="40" rows="5" style="resize:vertical;" required>
+                        }
+                    <span style="color: rgb(120, 0, 0)">@Html.ValidationMessage("title")</span>
+                    </div>
+                    <div id="fielda">
+                        <div id="fielda0">
+                            <!-- Text input-->
+                            <hr />
+                            <div class="form-group">
+                                <label style="color: black;" for="csetitle">Forum Description</label>
+                                @if (Description != "")
+                                {
+                                    <textarea style="background: url(../Images/scroll.jpg) no-repeat center; border-radius: 10px;" type="text" class="form-control" id="question" name="description" placeholder="Type Forum Description Here" cols="40" rows="5" style="resize:vertical;" required>@Description</textarea>
+                                }
+                                else
+                                {
+                                    <textarea style="background: url(../Images/scroll.jpg) no-repeat center; border-radius: 10px;" type="text" class="form-control" id="question" name="description" placeholder="Type Forum Description Here" cols="40" rows="5" style="resize:vertical;" required></textarea>
+                                }
+                            <span style="color: rgb(120, 0, 0)">@Html.ValidationMessage("description")</span>
+                            </div>
+                            <hr />
+                            <div class="form-group">
+                                <label style="color: black;" for="options">Category</label>
+                                <div data-role="dynamic-fields">
+                                    <div class="form-inline">
+                                        <div class="form-group">
+                                            <div>
+                                                @if (Category == "Community")
+                                                {
+                                                    <select style="background: url(../Images/scroll.jpg) no-repeat center; border-radius: 4px; border: none;" class="select" name="category">
+                                                        <option value="Community">Community</option>
+                                                        <option value="General">General</option>
+                                                    </select>
+                                                }
+                                                else
+                                                {
+                                                    <select style="background: url(../Images/scroll.jpg) no-repeat center; border-radius: 4px; border: none;" class="select" name="category">
+                                                        <option value="General">General</option>
+                                                        <option value="Community">Community</option>
+                                                    </select>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>  <!-- /div.form-inline -->
+                                    <hr />
+                                    <div class="form-inline">
+                                        @if (IsPrivate == "Y")
+                                        {
+                                            <input style="background: url(../Images/scroll.jpg) no-repeat center;" checked name="isprivate" type="checkbox" value="Y" placeholder="Y" /> <span style="color: black;">Private</span>
+                                        }
+                                        else
+                                        {
+                                            <input style="background: url(../Images/scroll.jpg) no-repeat center;" name="isprivate" type="checkbox" value="Y" placeholder="Y" /> <span style="color: black;">Private</span>
+                                        }
+                                    </div>
+                                </div>  <!-- /div[data-role="dynamic-fields"] -->
+                            </div>
+                        </div>
+                        <!--end field0-->
+                    </div>
+                    <!--end field-->
+                    <div class="form-group">
+                        @if (Request.QueryString["ForumId"] != null)
+                        {
+                            <label style="color: black;">Icon</label>
+                            <select style="background: url(../Images/scroll.jpg) no-repeat center; border-radius: 4px; border: none;" class="select-icon" name="icon">
+                                <option value="@Icon">Current</option>
+                                <option value="clipboard">Default</option>
+                                <option value="book">&#xf02d Book</option>
+                                <option value="magic">&#xf0d0 Wand</option>
+                                <option value="star">&#xf005 Star</option>
+                                <option value="bullhorn">&#xf0a1 Horn</option>
+                                <option value="hourglass">&#xf254 HourGlass</option>
+                            </select>
+                        }
+                        else
+                        {
+                            <label style="color: black;">Icon</label>
+                            <select style="background: url(../Images/scroll.jpg) no-repeat center; border-radius: 4px; border: none;" class="select-icon" name="icon">
+                                <option value="clipboard">Default</option>
+                                <option value="book">&#xf02d Book</option>
+                                <option value="magic">&#xf0d0 Wand</option>
+                                <option value="star">&#xf005 Star</option>
+                                <option value="bullhorn">&#xf0a1 Horn</option>
+                                <option value="hourglass">&#xf254 HourGlass</option>
+                            </select>
+                        }
+                    </div>
+                    <div class="form-group">
+                        <a href="~/ForumPage.cshtml" class="cancelBtn">cancel</a>
+                        &nbsp;
+                        @if (Request.QueryString["ForumId"] != null)
+                        {
+                            <input type="submit" id="add-more" name="add" class="btn btn-primary" value="Edit Forum" />
+                        }
+                        else
+                        {
+                            <input type="submit" id="add-more" name="add" class="btn btn-primary" value="Add Forum" />
+                        }
+                    </div>
+                </form>
+                <div style="padding-bottom: 30px;"></div>
+            </div>
+        </center>
+    </div>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</body>
+</html>

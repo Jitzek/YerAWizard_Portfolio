@@ -1,0 +1,144 @@
+﻿@{
+    Layout = "~/_SiteLayout.cshtml";
+    Page.Title = "Platform 3/4";
+    PageData["current"] = "Home";
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link rel="stylesheet" href="~/style ding.css">
+    <link rel="stylesheet" href="~/Stylesheets/Homestyle.css" />
+    <title>Yer A Wizard</title>
+</head>
+<body style="background-color: #202225">
+    <header>
+        <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+                <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+            </ol>
+            <div class="carousel-inner" role="listbox">
+                <!-- Slide One - Set the background image for this slide in the line below -->
+                <div class="carousel-item active" style="background-image: url(Images/Home1.jpg)">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h3 class="display-4">Welcome</h3>
+                        <p class="lead"></p>
+                    </div>
+                </div>
+            </div>
+            <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="false"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    </header>
+    <!-- Page Content -->
+    <div class="container">
+        <div class="row">
+            <!-- Nieuws -->
+            <div class="col-xs-6 col-xl-6" style="text-align: center">
+                <div>
+                    <div class="card-body">
+                        <h1 class="card-title mb-0 text-center">News</h1>
+                        <div> <a href="~/NewsHome.cshtml"><img src="Images/Homenews.png"></a></div>
+                    </div>
+                    <p style="text-align:center">Read all about the latest news.</p>
+                </div>
+            </div>
+            <!-- Sorteerhoed -->
+            <div class="col-xs-6 col-xl-6">
+                <div>
+                    <div class="card-body">
+                        <h1 class="card-title mb-0 text-center">Sortinghat</h1>
+                        <p style="text-align:center"><a href="~/SortingHat/Squestion1.cshtml">Take the test </a>and find your house!</p>
+                        <div><img src="Images/Hat.png"></div>
+                        <br />
+                        <p style="text-align:center">Take the test and find your house!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.row -->
+    </div>
+    <!--Contact en Tussenstand Row-->
+    <div class="container">
+
+        <div class="row" style="padding-top:20px">
+            <!-- Contact -->
+            <div class="col-xs-6 col-xl-6">
+                <div>
+                    <h1 class="card-title">Contact</h1>
+                </div>
+                <div class="well well-sm">
+                    <form class="form-horizontal" action="" method="post">
+                        <fieldset>
+                            <!-- Name input-->
+                            <div class="form-group">
+                                <label class="col-md-3 control-label" for="name">Name</label>
+                                <div class="col-md-9">
+                                    <input id="name" name="name" type="text" placeholder="" class="form-control">
+                                </div>
+                            </div>
+                            <!-- Email input-->
+                            <div class="form-group">
+                                <label class="col-md-3 control-label" for="email">E-mail</label>
+                                <div class="col-md-9">
+                                    <input id="email" name="email" type="text" placeholder="" class="form-control">
+                                </div>
+                            </div>
+                            <!-- Bericht input -->
+                            <div class="form-group">
+                                <label class="col-md-3 control-label" for="message">Message</label>
+                                <div class="col-md-9">
+                                    <textarea class="form-control" id="message" name="message" placeholder="" rows="5"></textarea>
+                                </div>
+                            </div>
+                            <!-- Verstuur -->
+                            <div class="form-group">
+                                <div class="col-xs-12 text-center">
+                                    <button type="submit" class="btn btn-primary btn-lg">Send</button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+                <div>
+                </div>
+            </div>
+            <!-- Tussenstand -->
+            <div class="col-xs-6 col-xl-6">
+                <div>
+                    <div>
+                        <h1 class="text-center">Current Standing</h1>
+                        <div><a href="~/HouseCup.cshtml"> <img src="Images/Score.png"></a> </div>
+                        <br />
+                        <p style="text-align:center">Sign in and find out who is winning!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.row -->
+    </div>
+    <!--Over Ons-->
+    <div class="container" style="padding-bottom:20px">
+        <h1 class="card-title">About Us</h1>
+        <div class="card-body">
+            <p>
+                Platform 9 3/4 was created in 2019. Platform 9 3/4 is social platform for Harry Potter enthusiasts to share their passion.
+                After taking The Sortinghat Quiz users can take lessons and tests for their house to score points and compete for The Housecup.
+            </p>
+        </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+﻿@{
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+
+    Validation.RequireField("exam", "vul een examen naam in");
+
+    string provider = "System.Data.SqlClient";
+    Database db = Database.OpenConnectionString(connectionString, provider);
+
+    int amountofquestions = Request.QueryString["amountofquestions"].AsInt();
+    int counter = Request.Form["counter"].AsInt();
+    string getlesson_id = "SELECT MAX(lesson_Id) FROM Lesson";
+    int lesson_id = db.QueryValue(getlesson_id);
+    int countermeer = counter + 1;
+
+    if (IsPost)
+    {
+        counter++;
+
+        int iscorrect1 = 0;
+        int iscorrect2 = 0;
+        int iscorrect3 = 0;
+        int iscorrect4 = 0;
+
+
+
+        int questionpoints = Request.Form["amountofpoints"].AsInt();
+        string questionname = Request.Form["question_name"];
+        string answer1 = Request.Form["answer1"];
+        string answer2 = Request.Form["answer2"];
+        string answer3 = Request.Form["answer3"];
+        string answer4 = Request.Form["answer4"];
+        iscorrect1 = Request.Form["Isactive1"].AsInt();
+        iscorrect2 = Request.Form["Isactive2"].AsInt();
+        iscorrect3 = Request.Form["Isactive3"].AsInt();
+        iscorrect4 = Request.Form["Isactive4"].AsInt();
+        //get exam_id
+        string getexam_id = "SELECT exam_Id FROM Exam where Lesson_Id = @0";
+        int exam_id = db.QueryValue(getexam_id, lesson_id);
+
+        //voeg vraag toe
+        string insertquestion = "INSERT INTO Questions (Question,points,Order_Prio,exam_Id) VALUES (@0,@1,@2,@3)";
+        var insertthatquestion = db.Execute(insertquestion, questionname, questionpoints, counter, exam_id);
+
+        //krijg question id
+        string getquestion_Id = "SELECT Question_Id FROM Questions WHERE Question = @0 AND Order_Prio = @1 AND exam_id = @2";
+        int question_Id = db.QueryValue(getquestion_Id, questionname, counter, exam_id);
+        string addquestion = "INSERT INTO answer (corret,answer,answer_index,Question_Id) VALUES (@0,@1,@2,@3)";
+        var insertquestion1 = db.Execute(addquestion, iscorrect1, answer1, 1, question_Id);
+        var insertquestion2 = db.Execute(addquestion, iscorrect2, answer2, 2, question_Id);
+        var insertquestion3 = db.Execute(addquestion, iscorrect3, answer3, 3, question_Id);
+        var insertquestion4 = db.Execute(addquestion, iscorrect4, answer4, 4, question_Id);
+
+
+
+
+        if (counter == amountofquestions)
+        {
+            Response.Redirect("/Lessons/MakeLesson.cshtml");
+        }
+
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page Title</title>
+</head>
+<body style="background-color: #343a40">
+
+
+    <link href="//cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <div class="container">
+        <div class="row">
+            <div class="section"></div>
+            <main>
+                <center>
+                    <form method="post" action="~/Lessons/MakeQuiz.cshtml?amountofquestions=@amountofquestions">
+                        <div class="container">
+                            <div class="z-depth-5 y-depth-5 x-depth-5 green-text" style="min-width:100%; background-color: #343a40; display: inline-block; padding: 32px 48px 0px 48px; margin-top: 100px;">
+                                <div class="section"></div>
+                                <div class="section"></div>
+
+                                <div class="section"><i class="mdi-alert-error red-text"></i></div>
+
+                                <div>
+                                    <h1>vraag @countermeer / @amountofquestions</h1>
+                                    <input type="hidden" name="amountofquestions" value="@amountofquestions" />
+                                    <input type="hidden" name="counter" value="@counter" />
+                                </div>
+                                <div class='row' style="background-color: #343a40">
+                                    <div class='input-field col s12'>
+                                        <input class='validate' type="text" name="question_name" id='Name' />
+                                        <label for='Name'>Question name</label>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class='input-field col s12'>
+                                        <input class='validate' type='text' name="amountofpoints" id='points' />
+                                        <label for='points'>Amount of points</label>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class='input-field col m13'>
+                                        <input class='validate' type='text' name="answer1" id='Isactive1' />
+                                        <label for='Isactive1'>Answer 1</label>
+
+                                    </div>
+                                    <div class="input-field col m13">
+                                        <input class="validate" type="radio" name="Active1" value="1" id="Active1">
+                                        <label for="Active1"></label>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class='input-field col m13'>
+                                        <input class='validate' type='text' name="answer2" id='Isactive2' />
+                                        <label for='Isactive2'>Answer 2</label>
+                                    </div>
+                                    <div class="input-field col m13">
+                                        <input class="validate" type="radio" name="Active2" value="1" id="Active2">
+                                        <label for="Active2"></label>
+                                    </div>
+                                </div>
+                                <div class='row'>
+                                    <div class='input-field col m14'>
+                                        <input class='validate' type='text' name="answer3" id='Isactive3' required />
+                                        <label for='Isactive3'>Answer 3</label>
+                                    </div>
+                                    <div class="input-field col m14">
+                                        <input class="validate" type="radio" name="Active3" value="1" id="Active3">
+                                        <label for="Active3"></label>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class='row'>
+                                    <div class='input-field col m15'>
+                                        <input class='validate' type='text' name="answer4" id='Isactive4' required />
+                                        <label for='Isactive4'>Answer 4</label>
+                                    </div>
+                                    <div class="input-field col m15">
+                                        <input class="validate" type="radio" name="Active4" value="1" id="Active4">
+                                        <label for="Active4"></label>
+                                        @Html.ValidationSummary()
+                                    </div>
+                                </div>
+
+                                <br />
+                                <center>
+                                    <br />
+                                    <div class='row'>
+                                        <button style="margin-left:27%;" type='submit' name='btn_login' class='col  s6 btn btn-small white black-text  waves-effect z-depth-1 y-depth-1'>Add</button>
+                                    </div>
+                                </center><br />
+                            </div>
+                        </div>
+                    </form>
+                </center>
+            </main>
+            <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.1/jquery.min.js"></script>
+            <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.min.js"></script>
+        </div>
+    </div>
+</body>
+</html>

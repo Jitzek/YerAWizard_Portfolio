@@ -1,0 +1,224 @@
+﻿@{
+    Layout = "~/_SiteLayout.cshtml";
+    Page.Title = "Hufflepuff";
+    PageData["current"] = "Houses";
+
+    string mail = "";
+    @Bobdehelper.Sessionnull();
+    mail = Session["mail"].ToString();
+
+    string nr1house = "";
+    int nr1points = 0;
+    string nr2house = "";
+    int nr2points = 0;
+    string nr3house = "";
+    int nr3points = 0;
+    string nr4house = "";
+    int nr4points = 0;
+    var pointdifference = 0;
+    string position = "";
+
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+    string provider = "System.Data.SqlClient";
+    Database db = Database.OpenConnectionString(connectionString, provider);
+
+    string checkrank = "";
+    var t = new Functions();
+    if (t.Rank(mail) == "Student" || t.Rank(mail) == "Teacher" || t.Rank(mail) == "Owner")
+    {
+        checkrank = t.Rank(mail);
+    }
+    else
+    {
+        Response.Redirect("~/login.cshtml");
+    }
+
+    int students = db.QuerySingle("SELECT COUNT(Username) AS Amount FROM Profiel WHERE House_House_Id = 2").Amount;
+
+    int TotalGryfDing = 0;
+    var SelectTotalPointsGryf = db.QuerySingle("SELECT SUM(User_Points) AS Total FROM Profiel Where House_House_Id = 1 AND Rank = 'Student'").Total;
+    if (SelectTotalPointsGryf != null)
+    {
+        TotalGryfDing = SelectTotalPointsGryf;
+    }
+
+    int TotalHufDing = 0;
+    var SelectTotalPointsHuf = db.QuerySingle("SELECT SUM(User_Points) AS Total FROM Profiel Where House_House_Id = 2 AND Rank = 'Student'").Total;
+    if (SelectTotalPointsHuf != null)
+    {
+        TotalHufDing = SelectTotalPointsHuf;
+    }
+
+    int TotalRavDing = 0;
+    var SelectTotalPointsRav = db.QuerySingle("SELECT SUM(User_Points) AS Total FROM Profiel Where House_House_Id = 3 AND Rank = 'Student'").Total;
+    if (SelectTotalPointsRav != null)
+    {
+        TotalRavDing = SelectTotalPointsRav;
+    }
+
+    int TotalSlythDing = 0;
+    var SelectTotalPointsSlyth = db.QuerySingle("SELECT SUM(User_Points) AS Total FROM Profiel Where House_House_Id = 4 AND Rank = 'Student'").Total;
+    if (SelectTotalPointsSlyth != null)
+    {
+        TotalSlythDing = SelectTotalPointsSlyth;
+    }
+
+    /*Functions functions = new Functions();
+    int[] positions = functions.GetPositions(TotalGryfDing, TotalHufDing, TotalRavDing, TotalSlythDing);
+
+    if (positions[1] == 1)
+    {
+        position = "1st";
+    }
+    if (positions[1] == 2)
+    {
+        position = "2nd";
+    }
+    if (positions[1] == 3)
+    {
+        position = "3rd";
+    }
+    if (positions[1] == 4)
+    {
+        position = "4th";
+    }*/
+}
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8" />
+    <title>@Page.Title - Yer a wizzard harry</title>
+    <link rel="stylesheet" href="~/Scripts/Layout.css" type="text/css" />
+    <link href="~/Scripts/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <link href="~/Scripts/Layout.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Crimson+Text" rel="stylesheet">
+    <meta name="viewport" content="width=device-width" />
+</head>
+<body style="background-color: #202225;" onload="getPos(@TotalGryfDing, @TotalHufDing, @TotalRavDing, @TotalSlythDing, 1)">
+    <div>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <div class="panel panel-default">
+                    <div id="houseBackgr-Hu" class="userprofile social">
+                        <div style="padding-top: 20px;"></div>
+                        <div class="userpic"> <img style="width: 250px; height: 250px;" src="~/Images/Logo_Hufflepuff_shadow.png" alt="" class="userpicimg"> </div>
+                        <h3 style="font-weight: bold; color: #c8c8c8;" class="username">Hufflepuff</h3>
+                        <p style="font-weight: 700;"></p>
+                        <div class="socials tex-center">
+                            <a href="~/Gryffindor.cshtml" class="btn btn-circle btn-primary" id="houseGrBtn">
+                                <i class="#"></i>
+                            </a>
+                            <a href="~/Hufflepuff.cshtml" class="btn btn-circle btn-warning" id="houseHuBtn">
+                                <i class="#"></i>
+                            </a>
+                            <a href="~/Ravenclaw.cshtml" class="btn btn-circle btn-info" id="houseRaBtn">
+                                <i class="#"></i>
+                            </a>
+                            <a href="~/Slytherin.cshtml" class="btn btn-circle btn-danger" id="houseSlBtn">
+                                <i class="#"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <div id="houseInfo" class="col-md-12 border-bottom">
+                            <ul style="color: #dddddd" class="nav nav-pills pull-left countlist" role="tablist">
+                                <li role="presentation">
+                                    <h3>
+                                        <span id="position"></span><br>
+                                        <small class="sub-text">POSITION</small>
+                                    </h3>
+                                </li>
+                                <div style="padding-left: 35px;"></div>
+                                <li role="presentation">
+                                    <h3>
+                                        @TotalHufDing<br>
+                                        <small class="sub-text">POINTS</small>
+                                    </h3>
+                                </li>
+                                <div style="padding-left: 35px;"></div>
+                                <li role="presentation">
+                                    <h3>
+                                        @students<br>
+                                        <small class="sub-text">STUDENTS</small>
+                                    </h3>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="margin-bottom: 25px;"></div>
+    <div class="container">
+        <div class="row">
+            <div id="house-Wiki" class="col">
+                <h3 style="font-size: 34px; text-align: center; color: #dddddd;">About <span style="color: #E9AC2D">Hufflepuff</span></h3>
+                <br />
+                <h4 class="house-head">History</h4>
+                <p class="house-par">
+                    Hufflepuff is one of the four Houses of Hogwarts School of Witchcraft and Wizardry.
+                    Its founder was the medieval witch Helga Hufflepuff.
+                    Hufflepuff is the most inclusive among the four houses; valuing hard work, dedication, patience, loyalty, and fair play rather than a particular aptitude in its members.
+                    The emblematic animal is a badger, and yellow and black are its colours. The Head of Hufflepuff is Pomona Sprout and the Fat Friar is the House's patron ghost.
+                </p>
+                <p class="house-par">
+                    Hufflepuff corresponds roughly to the element of earth, and it is for that reason that the House colours were chosen: yellow represented wheat, while black was emblematic of soil.
+                    The Hufflepuff points hourglass contains yellow diamonds.
+                    Students sorted into Hufflepuff often demonstrate exceptional abilities in Herbology, owing to their correspondence to earth.
+                </p>
+                <br />
+                <h4 class="house-head">Traits</h4>
+                <p class="house-par">
+                    Hufflepuffs are known to have a strong moral code, and a sense of right and wrong.
+                    Hufflepuffs are usually accepting of everyone. Students in Hufflepuff are known to value everyone and treat them as equal.
+                </p>
+                <p class="house-par">
+                    Students belonging to this house are known to be hard-working, friendly, loyal, honest and rather impartial.
+                    It may be that due to their values, Hufflepuffs are not as competitive as the other houses, and are more modest about their accomplishments.
+                    Hufflepuff is the most inclusive among the four houses; valuing hard work, dedication, patience, loyalty, and fair play rather than a particular aptitude in its students.
+                </p>
+                <p class="house-par">
+                    Hufflepuff appears to have the least rivalry with the other houses, except in Quidditch, although the Triwizard Tournament did temporarily put a great deal of strain on the relationship between Gryffindor and Hufflepuff, due to unusual circumstances of the selection of both Gryffindor student Harry Potter and Hufflepuff student Cedric Diggory as Champions.
+                    This was mended by 1998, where a majority of Hufflepuffs rose to defend Harry from Pansy Parkinson and later helped to defend Hogwarts.
+                </p>
+                <br />
+                <h4 class="house-head">Reputation</h4>
+                <p class="house-par">
+                    According to Minerva McGonagall, all four of the houses have produced exceptional witches and wizards in their time, but due to Helga <span class="Hu-mention">Hufflepuff's</span> policy of accepting any student <span class="Hu-mention">Hufflepuff</span> is often thought to be the house of less talented wizards and witches. However, this is merely a misunderstanding of the Sorting Hat's poem.
+                    The <span class="Hu-mention">Hufflepuff</span> house has produced a great many of successful and influential members of the wizarding world, such as the renowned Magizoologist Newton Scamander.
+                    A great number of exceptionally skilled witches and wizards also have their origins on this house, including noted Arithmancer Bridget Wenlock, and former Minister for Magic Artemisia Lufkin.
+                    What makes <span class="Hu-mention">Hufflepuff</span> differ from the other houses is the fact that it doesn't tend to boast about these accomplishments; it is not considered to be part of their nature.
+                    <br />
+                    <span class="Hu-mention">Hufflepuff</span> is the house that produced the fewest dark wizards through out its history.
+                    Their cheerful and friendly demeanour can probably account for this property of the House.
+                    <span class="Hu-mention">Hufflepuff</span> firmly demonstrated its loyalty during the Battle of Hogwarts in 1998, when they were second only to Harry Potter's own house of <span class="Gr-mention">Gryffindor</span> in the number of students willing to stay and fight against Voldemort and his forces in the defence of their school.
+                </p>
+                <br />
+                <h4 class="house-head">Common Room</h4>
+                <p class="house-par">
+                    The Hufflepuff dormitories and common room have never been seen by outsiders and is the only house with repelling devices in case of intruders.
+                    They are accessed through a pile of large barrels, found stacked in a shadowy stone recess on a right-hand side corridor near the kitchens.
+                    The barrel two from the bottom, middle of the second row, will open if tapped in the rhythm of 'Helga Hufflepuff'.
+                    <br />
+                    <br />
+                    As a security device to repel non-Hufflepuff students, tapping on the wrong barrel, or tapping the incorrect number of times, results in one of the other lids bursting off, drenching the impostor in vinegar.
+                    <br />
+                    <br />
+                    However, once you make it through the tunnel entryway, the Hufflepuff dormitory is a quite cosy and welcoming place; it always feels sunny.
+                    The common room is a large, earthy, round room with low ceilings.
+                    The view from the round windows is of dandelions and rippling grass.
+                    <br />
+                    <br />
+                    The decor emphasises the earthy-feel of the room with plants hanging and resting all about the room, some that even sing and dance.
+                    Burnished copper touchings with plush, cosy yellow and black patterned sofas and chairs welcome Hufflepuff students to relax and discuss the interesting specimens brought in by the Head of House, Professor Sprout.
+                    A Hufflepuff student retires through big, round doors in the walls of the common room to their dormitory.
+                </p>
+                <p class="house-par" style="color: white;">Source: <a href="https://harrypotter.fandom.com/wiki/Hufflepuff">https://harrypotter.fandom.com/wiki/Hufflepuff</a></p>
+            </div>
+        </div>
+    </div>
+    <br />
+    <link rel="stylesheet" href="~/Scripts/Layout.css" type="text/css" />
+    <script type="text/javascript" src="~/Scripts/functions.js"></script>
+</body>

@@ -1,0 +1,225 @@
+﻿@{
+    Layout = "~/_Sitelayout.cshtml";
+    Page.Title = "News ";
+    PageData["current"] = "News";
+
+    string mail = "";
+    @Bobdehelper.Sessionnull();
+    mail = Session["mail"].ToString();
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+    string provider = "System.Data.SqlClient";
+    Database db = Database.OpenConnectionString(connectionString, provider);
+
+    string checkrank = "";
+    var t = new Functions();
+    if (t.Rank(mail) == "Student" || t.Rank(mail) == "Teacher" || t.Rank(mail) == "Owner")
+    {
+        checkrank = t.Rank(mail);
+    }
+    else
+    {
+        Response.Redirect("~/login.cshtml");
+    }
+
+    int i = 1;
+    var News = db.Query("SELECT * FROM News");
+}
+<head>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <link rel="stylesheet" href="~/NewsStyle.css">    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+</head>
+<body>
+    <section class="banner-sec" style="background-color: #202225;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card">
+                        <img class="img-fluid" src="~/Images/News1.png" alt="">
+                        <div class="card-img-overlay"> <span class="badge badge-pill badge-danger">Fans</span> </div>
+                        <div class="card-body">
+                            <div class="news-title">
+                                <h2 class=" title-small"><a href="~/ForumPage.cshtml">Welcome New Community Members</a></h2>
+                                <br />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <img class="img-fluid" src="~/Images/News3.png" alt="">
+                        <div class="card-img-overlay"> <span class="badge badge-pill badge-danger">Hogwarts</span> </div>
+                        <div class="card-body">
+                            <div class="news-title">
+                                <h2 class=" title-small"><a href="https://harrypotter.fandom.com/wiki/Hogwarts_School_of_Witchcraft_and_Wizardry">Hogwarts School of Witchcraft and Wizardry is the British wizarding school.</a></h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <img class="img-fluid" src="~/Images/News2.png" alt="">
+                        <div class="card-img-overlay"> <span class="badge badge-pill badge-danger">Daily Prophet</span> </div>
+                        <div class="card-body">
+                            <div class="news-title">
+                                <h2 class=" title-small"><a href="https://harrypotter.fandom.com/wiki/Daily_Prophet">The Daily Prophet is a wizarding newspaper based in London, England.</a></h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <img class="img-fluid" src="~/Images/News4.png" alt="">
+                        <div class="card-img-overlay"> <span class="badge badge-pill badge-danger">J.K. Rowling</span> </div>
+                        <div class="card-body">
+                            <div class="news-title">
+                                <h2 class=" title-small"><a href="https://www.jkrowling.com/about/">Read all about J.K. Rowling</a></h2> <br /><br />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Carousel-->
+                <div class="col-md-6 top-slider">
+                    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+                        <!-- Indicators -->
+                        <ol class="carousel-indicators">
+                            <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+                            <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+                            <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+                        </ol>
+                        <!-- Wrapper for slides -->
+                        <div class="carousel-inner" role="listbox">
+                            <div class="carousel-item active">
+                                <div class="news-block">
+                                    <div class="news-media"><img class="img-fluid" src="~/Images/CNews1.png" alt=""></div>
+                                    <div class="news-title">
+                                        <h2 class=" title-large"><a href="https://www.pastemagazine.com/articles/2017/06/best-albus-dumbledore-quotes-from-harry-potter.html">The 10 Best Albus Dumbledore Quotes</a></h2>
+                                    </div>
+                                    <div class="news-des"></div>
+                                    <br />
+                                    <div></div>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <div class="news-block">
+                                    <div class="news-media"><img class="img-fluid" src="~/Images/CNews2.png" alt=""></div>
+                                    <div class="news-title">
+                                        <h2 class=" title-large">
+                                            <a href="https://harrypotter.fandom.com/wiki/Dobby">
+                                                "Dobby has no master. Dobby is a free elf!" <br />
+                                                —Dobby proud of being a free elf
+                                            </a>
+                                        </h2>
+                                    </div>
+                                    <br />
+                                    <div></div>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <div class="news-block">
+                                    <div class="news-media"><img class="img-fluid" src="~/Images/CNews3.png" alt=""></div>
+                                    <div class="news-title">
+                                        <h2 class=" title-large"><a href="https://harrypotter.fandom.com/wiki/Hogwarts_Houses">Hogwarts Houses</a></h2>
+                                    </div>
+                                    <br />
+                                    <div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/Row-->
+    </section>
+    <section class="banner-sec" style="background-color: #202225">
+        <div class="container">
+            <h3 class="heading-large" style="max-width:30%; float: left;color:white">News Feed</h3>
+            <aside class="col-lg-4 side-bar col-md-12 float-right">
+
+                <!--Owner add news-->                
+            @if (checkrank == "Owner")
+                {
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="heading-large">Add Newsarticle</h3>
+                        <div align="center" style="padding-top: 10px">
+                        <a href="~/AddNews.cshtml" type="button" class="btn btn-warning btn-lg"> Add News</a>
+                        </div>
+                    </div>
+                </div>
+                }
+            else
+            {
+
+            }       
+                <!--Video box-->
+                <div class="video-sec">
+                    <h3 class="heading-large" style="color:white">Featured Video</h3>
+                    <div class="video-block">
+                        <div class="embed-responsive embed-responsive-4by3">
+                            <iframe class="embed-responsive-item" src="//www.youtube.com/embed/TKSlH-1XZho" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+            <!--News feed-->
+            <br /><br />
+           
+            @foreach (var id in News)
+            {
+                <div class="row">
+                    <div class="col-lg-8 col-md-12" style="padding-top: 5px;">
+                        <div class="newsarticle">
+                            <a style="color:black" href="#item'@i'" data-toggle="collapse">@id.Title</a>
+                            <!--Owner only-->
+                            @if (checkrank == "Owner")
+                            {
+                            <div class="float-right" style="">
+                                <a href="~/AddNews.cshtml?NewsId=@id.News_Id">Edit</a>
+                                &nbsp;
+                                <a style="color: #a00000" href="~/DeleteNews.cshtml?NewsId=@id.News_Id">Delete</a>
+                            </div>
+                            }
+                            else
+                            {
+
+                            }
+                            <!--// -->            
+                        </div>
+                        <div id="item'@i'" class="collapse">
+                            <div class="newscontent" style="padding:5px 5px;">
+                                @if (id.News_IMG != null)
+                                {
+                                    <!-- inhoud/ image-->
+                                    <div align:right style="width:100%">
+                                        <p style="float:right"><em>Last edit:@id.Date</em></p>
+                                        &nbsp;
+                                    </div>
+                                    <div>
+                                        <img class="img-left" style="max-height:200px; max-width: 150px; border: 3px; border-color: black; float:left; margin:5px 5px;" src="@id.News_IMG" />
+                                        <p>@id.Description </p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div align:right style="width:100%">
+                                        <p style="float:right"><em>Last edit:@id.Date</em></p>
+                                        &nbsp;
+                                    </div>
+                                    <div>
+                                        <p>@id.Description </p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                i++;
+            }            
+            <!--/Newsfeed-->                       
+        </div>
+    </section>
+</body>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>

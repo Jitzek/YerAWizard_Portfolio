@@ -1,0 +1,56 @@
+﻿@{
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+
+    string provider = "System.Data.SqlClient";
+
+    Database db = Database.OpenConnectionString(connectionString, provider);
+
+    string GetTeacher;
+    string Teacher;
+    string GetLessonName;
+    string lesson_Titel; ;
+    string GetLessonInfo;
+    string lesson_Info;
+
+    if (!Request.QueryString["Lesson_Id"].IsEmpty() && Request.QueryString["Lesson_Id"].IsInt())
+    {
+        int Lesson_Id = Request.QueryString["Lesson_Id"].AsInt();
+        GetTeacher = "SELECT Teacher FROM Lesson WHERE Lesson_Id = @0";
+        Teacher = db.QueryValue(GetTeacher, Lesson_Id);
+
+        //haalt de naam van de les op
+        GetLessonName = "SELECT Lesson_name FROM Lesson WHERE Lesson_Id = @0";
+        lesson_Titel = db.QueryValue(GetLessonName, Lesson_Id);
+
+        //haalt het les stof op
+        GetLessonInfo = "SELECT Lesson_Material FROM Lesson WHERE Lesson_Id =@0";
+        lesson_Info = db.QueryValue(GetLessonInfo, Lesson_Id);
+    }
+    else
+    {
+        //zou in void methode kunnen
+        //haalt de teacher op
+        GetTeacher = "SELECT Teacher FROM Lesson WHERE Selected_Lesson = @0";
+        Teacher = db.QueryValue(GetTeacher, 1);
+
+        //haalt de naam van de les op
+        GetLessonName = "SELECT Lesson_name FROM Lesson WHERE Selected_Lesson = @0 ";
+        lesson_Titel = db.QueryValue(GetLessonName, 1);
+
+        //haalt het les stof op
+        GetLessonInfo = "SELECT Lesson_Material FROM Lesson WHERE Selected_Lesson = @0 ";
+        lesson_Info = db.QueryValue(GetLessonInfo, 1);
+
+    }
+   
+}
+
+<div>
+    <h1>@lesson_Titel | gegeven door @Teacher</h1>
+
+    <h2>@lesson_Info</h2>
+    <br />
+    <h3>doe hier het ding om de les te voltooien</h3>
+     
+    <a href="~/Lessons/MakeLesson.cshtml">ga terug</a>
+</div>

@@ -1,0 +1,232 @@
+﻿@{
+    Validation.RequireField("Username", "You must enter an Username");
+    Validation.Add("Username", Validator.StringLength(50, 3, "Your Username can not be longer than 50 characters in length or shorter than 3 characters"));
+    Validation.RequireField("Password", "You must enter a Password");
+    Validation.Add("Password", Validator.StringLength(50, 3, "Your Password can not be longer than 50 characters in length or shorter than 3 characters"));
+    Validation.RequireField("ConfirmPassword", "You must confirm your Password");
+    Validation.RequireField("Email", "You must enter an Email");
+    Validation.Add("Email", Validator.StringLength(50, 3, "Your Email can not be longer than 50 characters in length or shorter than 3 characters"));
+    Validation.RequireField("ConfirmEmail", "You must confrim your Email");
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+    string provider = "System.Data.SqlClient";
+    Database db = Database.OpenConnectionString(connectionString, provider);
+
+
+    var Username = "";
+    var Password = "";
+    var ConfirmPassword = "";
+    var Email = "";
+    var sha256 = "";
+    var ConfirmEmail = "";
+    var Rank = "Student";
+    int userpoints = 0;
+    var salt = "";
+
+
+
+    //Add some kind of error messege if the forms are not filled in
+    if (IsPost && Validation.IsValid())
+    {
+        Username = Request.Form["Username"];
+        Password = Request.Form["Password"];
+        ConfirmPassword = Request.Form["ConfirmPassword"];
+        Email = Request.Form["Email"];
+        ConfirmEmail = Request.Form["ConfirmEmail"];
+        salt = Crypto.GenerateSalt();
+        sha256 = Crypto.SHA256(salt + Password);
+
+        var checkuserdata = db.QuerySingle("SELECT COUNT(Username) AS telUser, COUNT(Email) AS telEmail FROM [Profiel] WHERE Username = @0 OR Email = @1", Username, Email);
+        int countuser = checkuserdata.telUser;
+        int countmail = checkuserdata.telEmail;
+        if (countuser == 1)
+        {
+            <div class="alert">
+                Username already taken
+            </div>
+        }
+        else if (countmail == 1)
+        {
+            <br />
+            <div class="alert">
+                Mail already in use
+            </div>
+        }
+        else
+        {
+            if (Password == ConfirmPassword && Email == ConfirmEmail)
+            {
+                string prof_picture = @"\ProfilePicture\default.png";
+                var InsertUser = "INSERT INTO [Profiel] (Username, Password, Email, Rank, User_Points, Prof_Picture, salt) Values (@0, @1, @2, @3, @4, @5, @6)";
+                db.Execute(InsertUser, Username, sha256, Email, Rank, userpoints, prof_picture, salt);
+                Response.Redirect("~/login.cshtml");
+            }
+            else if (Password == ConfirmPassword && Email != ConfirmEmail)
+            {
+                //Better error handeling needed
+                <div class="alert">
+                    Confirm Email doesn't match Email
+                </div>
+
+            }
+            else if (Password != ConfirmPassword && Email == ConfirmEmail)
+            {
+                //Better error handeling needed
+                <div class="alert">
+                    Confirm Password doesn't match Password
+                </div>
+            }
+            else
+            {
+                <div class="alert">
+                    Confirm Email doesn't match Email
+                </div><br />
+                <div class="alert">
+                    Confirm Password doesn't match Password
+                </div>
+
+            }
+        }
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Stylesheets/StyleSheetLogin.css" rel="stylesheet">
+    <title>Register</title>
+    <style>
+        .field-validation-error {
+            color: red;
+            text-align: left;
+        }
+
+        .validation-summary-errors {
+            color: red;
+            text-align: left;
+        }
+
+        .alert {
+            padding: 20px;
+            background-color: #f44336;
+            color: white;
+            opacity: 1;
+            transition: opacity 0.6s;
+            margin-bottom: 15px;
+        }
+
+            .alert.success {
+                background-color: #4CAF50;
+            }
+
+            .alert.info {
+                background-color: #2196F3;
+            }
+
+            .alert.warning {
+                background-color: #ff9800;
+            }
+
+        .closebtn {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            .closebtn:hover {
+                color: black;
+            }
+    </style>
+    <link rel="icon" type="image/x-icon" href="~/favicon/favicon.ico" />
+</head>
+<body>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!------ Include the above in your HEAD tag ---------->
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css">
+
+    <div class="container" style="position:absolute; left:0; right:0;">
+        <div class="card card-login mx-auto text-center bg-dark">
+            <div class="card-header mx-auto bg-dark">
+                <a href="~/HomePage.cshtml"> <img src="~/Images/hp logo.png" class="w-75" alt="Logo"> </a><br />
+            </div>
+
+            <div class="card-body">
+                <form method="post">
+                    @Html.ValidationMessage("Username")
+                    <div class="input-group form-group">
+                        <input value="@Request.Form["Username"]" type="text" name="Username" class="form-control" placeholder="Username">
+
+                    </div><br />
+                    @Html.ValidationMessage("Password")
+                    <div class="input-group form-group">
+                        <input value="@Request.Form["Password"]" type="password" name="password" class="form-control" placeholder="Password">
+
+                    </div>
+                    @Html.ValidationMessage("ConfirmPassword")
+                    <div class="input-group form-group">
+                        <input value="@Request.Form["ConfirmPassword"]" type="password" name="confirmpassword" class="form-control" placeholder="Confirm Password">
+
+                    </div><br />
+                    @Html.ValidationMessage("Email")
+                    <div class="input-group form-group">
+                        <input value="@Request.Form["Email"]" type="email" name="Email" class="form-control" placeholder="Email">
+
+                    </div>
+                    @Html.ValidationMessage("ConfirmEmail")
+                    <div class="input-group form-group">
+                        <input value="@Request.Form["ConfirmEmail"]" type="email" name="ConfirmEmail" class="form-control" placeholder="Confirm Email">
+
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" name="btn" value="Register" class="btn btn-outline-danger float-right login_btn">
+                    </div>
+
+                </form>
+                <button style="float:left" type="button" class="btn btn-outline-light" onclick="window.location.href = '/login.cshtml';">
+                    Log-In
+                </button>
+            </div>
+
+        </div>
+    </div>
+    <script>
+        var Doc = document,
+            ox = oy = 0,
+            mDis = 80,
+            id = 0;
+        Doc.addEventListener('mousemove', track);
+        Doc.addEventListener('touchmove', track);
+        function track(event) {
+            var e = event.pageX ? event : event.targetTouches[0];
+            var dis = Math.round(Math.sqrt((ox - e.pageX) * (ox - e.pageX) + (oy - e.pageY) * (oy - e.pageY))),
+                xdiff = e.pageX - ox, ydiff = e.pageY - oy,
+                ang = Math.atan2(ydiff, xdiff) * 180 / Math.PI;
+            if (dis > mDis) {
+                ox = e.pageX; oy = e.pageY;
+                var ND = Doc.createElement('div');
+                TweenLite.set(ND, {
+                    className: 'foot', rotation: ang, x: e.pageX, y: e.pageY, scaleY: id & 1 ? -1 : 1, transformOrigin: "50% -70%"
+                });
+                Doc.body.appendChild(ND);
+                id++;
+                TweenLite.to(ND, 5, {
+                    opacity: 0, onComplete: function () {
+                        this.target.parentNode.removeChild(this.target);
+                    }
+                })
+            }
+        };
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.2/TweenMax.min.js"></script>
+
+</body>
+</html>

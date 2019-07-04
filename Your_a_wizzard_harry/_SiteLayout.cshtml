@@ -1,0 +1,426 @@
+﻿@{
+    string Username = "";
+    string mail = "";
+    string Rank = "";
+    string prof_pic = "";
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+    string provider = "System.Data.SqlClient";
+    Database db = Database.OpenConnectionString(connectionString, provider);
+
+    if (Session["mail"] != null)
+    {
+        mail = Session["mail"].ToString();
+        try
+        {
+            Username = db.QuerySingle("SELECT Username FROM Profiel WHERE Email = @0", mail).Username;
+            Rank = db.QuerySingle("SELECT Rank FROM Profiel WHERE Email = @0", mail).Rank;
+            prof_pic = db.QuerySingle("SELECT Prof_Picture FROM Profiel WHERE Email = @0", mail).Prof_Picture;
+        }
+        catch (Exception)
+        {
+            Session.Abandon();
+        }
+    }
+
+    if (Rank != "Student" && Rank != "Teacher" && Rank != "Owner")
+    {
+        if (PageData["current"] != "Home" && PageData["current"] != "About" && PageData["current"] != "Contact" && PageData["current"] != "HouseCup")
+        {
+            Response.Redirect("~/login.cshtml");
+        }
+    }
+
+    var Notifications = db.Query("SELECT * FROM Notifications WHERE Profiel_Username = @0", Username);
+    int Notifications_Amount = db.QuerySingle("SELECT COUNT(Notification_Id) AS Amount FROM Notifications WHERE Profiel_Username = @0 AND (Is_Read = @1 OR Is_Read IS NULL)", Username, false).Amount;
+    int select_notifications = db.QuerySingle("SELECT COUNT(Notification_Id) AS Amount FROM Notifications WHERE Profiel_Username = @0", Username).Amount;
+    bool clearable = false;
+    if (select_notifications > 0)
+    {
+        clearable = true;
+    }
+
+    if (IsPost)
+    {
+        if (Request.Form["logout"] == "Logout")
+        {
+            Session.Abandon();
+            if (Request.Cookies["User"] != null && Request.Cookies["Pass"] != null)
+            {
+                HttpCookie[] cookies = new HttpCookie[2];
+                cookies[0] = HttpContext.Current.Request.Cookies["User"];
+                cookies[1] = HttpContext.Current.Request.Cookies["Pass"];
+                foreach (var cookie in cookies)
+                {
+                    cookie.Expires = DateTime.Now.AddDays(-10);
+                    cookie.Value = null;
+                    HttpContext.Current.Response.SetCookie(cookie);
+                }
+            }
+            Response.Redirect("~/login.cshtml");
+        }
+
+        else if (Request.Form["notification"] != null)
+        {
+            int Id = Request.Form["notification"].AsInt();
+            string Url = db.QuerySingle("SELECT Url FROM Notifications WHERE Notification_Id = @0", Id).Url;
+            db.Execute("UPDATE Notifications SET Is_Read = @0 WHERE Notification_Id = @1", 1, Id);
+            Response.Redirect(Url);
+        }
+        else if (Request.Form["notification_remove"] != null)
+        {
+            int Id = Request.Form["notification_remove"].AsInt();
+            db.Execute("DELETE FROM Notifications WHERE Profiel_Username = @0 AND Notification_Id = @1", Username, Id);
+            Response.Redirect(Request.RawUrl);
+        }
+        else if (Request.Form["clear"] == "clear")
+        {
+            db.Execute("DELETE FROM Notifications WHERE Profiel_Username = @0", Username);
+            Response.Redirect(Request.RawUrl);
+        }
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@Page.Title - Yer a wizzard harry</title>
+    <!--<link href="~/Content/themes/base/jquery.ui.all.css" rel="stylesheet" type="text/css" />-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link href="~/Stylesheets/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Stylesheets/Layout.css" rel="stylesheet" type="text/css" />
+    <link href="~/Stylesheets/style ding.css" rel="stylesheet" type="text/css" />
+    <link rel="icon" type="image/x-icon" href="~/favicon/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+</head>
+<body>
+    <!-- Navigation bar -->
+    <nav class="navbar navbar-icon-top navbar-expand-lg navbar-dark bg-dark" style="padding-bottom: 0px; padding-top: 0px; z-index: 2; font-size: 16px !important; font-family: -apple-system,BlinkMacSystemFont, Segoe UI ,Roboto, Helvetica Neue ,Arial,sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji !important;">
+        <a id="Logo" class="navbar-brand" href="~/HomePage.cshtml"><img style="max-width: 120px;" src="~/Images/9_34_improv_v2.png" /></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <div class="nav-space"></div>
+                @if (PageData["current"] == "Home")
+                {
+                    <li class="nav-item active">
+                        <a class="nav-link" href="~/HomePage.cshtml">
+                            <i class="fa fa-home"></i>
+                            Home
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/HomePage.cshtml">
+                            <i class="fa fa-home"></i>
+                            Home
+                        </a>
+                    </li>
+                }
+                <div class="nav-space"></div>
+                @if (PageData["current"] == "News")
+                {
+                    <li class="nav-item active">
+                        <a class="nav-link" href="~/NewsHome.cshtml">
+                            <i class="far fa-newspaper">
+                            </i>
+                            News
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/NewsHome.cshtml">
+                            <i class="far fa-newspaper">
+                            </i>
+                            News
+                        </a>
+                    </li>
+                }
+                <div class="nav-space"></div>
+                @if (PageData["current"] == "Forums")
+                {
+                    <li class="nav-item active">
+                        <a class="nav-link" href="~/ForumPage.cshtml">
+                            <i class="fas fa-broom">
+                            </i>
+                            Forums
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/ForumPage.cshtml">
+                            <i class="fas fa-broom">
+                            </i>
+                            Forums
+                        </a>
+                    </li>
+                }
+                <div class="nav-space"></div>
+                @if (PageData["current"] == "Houses")
+                {
+                    <li class="nav-item active">
+                        <a class="nav-link" href="~/Houses.cshtml">
+                            <i class="fab fa-fort-awesome-alt"></i>
+                            Houses
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/Houses.cshtml">
+                            <i class="fab fa-fort-awesome-alt"></i>
+                            Houses
+                        </a>
+                    </li>
+                }
+                <div class="nav-space"></div>
+                @if (PageData["current"] == "Lessons")
+                {
+                    <li class="nav-item active">
+                        <a class="nav-link" href="~/Lessons/Lessons.cshtml">
+                            <i class="fas fa-scroll"></i>
+                            Lessons
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/Lessons/Lessons.cshtml">
+                            <i class="fas fa-scroll"></i>
+                            Lessons
+                        </a>
+                    </li>
+                }
+                <div class="nav-space"></div>
+                @if (Rank == "Owner" || Rank == "Teacher")
+                {
+                    if (PageData["current"] == "Lesson Create")
+                    {
+                        <li class="nav-item active">
+                            <a class="nav-link" href="~/Lessons/Lessons.cshtml">
+                                <i class="fas fa-feather-alt"></i>
+                                Make Lesson
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="~/Lessons/MakeLesson.cshtml">
+                                <i class="fas fa-feather-alt"></i>
+                                Make Lesson
+                            </a>
+                        </li>
+                    }
+                }
+                <div class="nav-space"></div>
+                @if (PageData["current"] == "About" || PageData["current"] == "Contact")
+                {
+                    <li class="nav-item dropdown active">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-envelope-o">
+                                <span class="badge badge-primary"></span>
+                            </i>
+                            Info
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a style="color: #efefef" class="dropdown-item" href="~/About.cshtml">About</a>
+                            <div style="background-color: rgba(0, 0, 0, 0.5); padding: 0.5px; margin: 6px;"></div>
+                            <a style="color: #efefef" class="dropdown-item" href="~/Contact.cshtml">Contact</a>
+                        </div>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Info
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a style="color: #efefef" class="dropdown-item" href="~/About.cshtml">About</a>
+                            <div style="background-color: rgba(0, 0, 0, 0.5); padding: 0.5px; margin: 6px;"></div>
+                            <a style="color: #efefef" class="dropdown-item" href="~/Contact.cshtml">Contact</a>
+                        </div>
+                    </li>
+                }
+            </ul>
+            <li style="list-style: none;" class="nav-item dropdown">
+                @if (Notifications_Amount != 0)
+                {
+                    <a style="color: #dddddd;" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="far fa-envelope">
+                            @if (Notifications_Amount != 0)
+                            {
+                                <span class="badge badge-info">@Notifications_Amount</span>
+                            }
+                        </i>
+                    </a>
+                }
+                else
+                {
+                    <a style="color: #808080;" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="far fa-envelope-open">
+                        </i>
+                    </a>
+                }
+                <div style="right: 0; left: auto;" id="notifications" class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    @foreach (var notification in Notifications)
+                    {
+                        <form method="post">
+                            @if (notification.Is_Read != true)
+                            {
+                                <div style="width: 100%;">
+                                    <button name="notification_remove" value="@notification.Notification_Id" style="width: 10%; background: none; cursor: pointer; border: none; margin-top: 4px; color: #dddddd;"><i class="fas fa-times"></i></button>
+                                    <button name="notification" type="submit" value="@notification.Notification_Id" style="color: #efefef; cursor: pointer; width: 90%; float: right; padding-right: 50px;" class="dropdown-item">
+                                        <span style="color: #0094ff">@notification.Subject_Username</span> &nbsp; @notification.Notification
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div style="width: 100%;">
+                                    <button name="notification_remove" value="@notification.Notification_Id" style="width: 10%; background: none; cursor: pointer; border: none; margin-top: 4px; color: #dddddd;"><i class="fas fa-times"></i></button>
+                                    <button name="notification" type="submit" value="@notification.Notification_Id" style="color: rgba(207, 207, 207, 0.65); cursor: pointer; width: 90%; float: right; padding-right: 50px;" class="dropdown-item">
+                                    <span style="color: rgba(0, 125, 215, 0.65)">@notification.Subject_Username</span> &nbsp; @notification.Notification
+                                    </button>
+                                </div>
+                            }
+                        </form>
+                        <!--<a style="color: #efefef; cursor: pointer;" class="dropdown-item" onclick="window.location = '@notification.Url';"><span style="color: #0094ff">@notification.Subject_Username</span> &nbsp; @notification.Notification</a>-->
+                        <div style="background-color: rgba(0, 0, 0, 0.5); padding: 0.5px; margin: 6px;"></div>
+                    }
+                    @if (Notifications_Amount != 0 || clearable == true)
+                    {
+                        <form method="post">
+                            <button id="clearBtn" type="submit" name="clear" value="clear">Clear All</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <p style="color: #efefef; cursor: pointer;" class="dropdown-item">No notifications here <i class="fas fa-hat-wizard"></i></p>
+                    }
+                </div>
+            </li>
+            @if (mail != "")
+            {
+                <li style="list-style: none;" id="logged-in" class="nav-item dropdown">
+                    <form method="post">
+                        <a style="color: white;" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <div class="d-inline-flex">
+                                <img style=" max-height: 27px; min-height: 27px; max-width: 25px; min-width: 25px; border: solid 0.25px rgba(0, 0, 0, 0.5);" src="@prof_pic" />
+                                <div style="background-color: rgba(0, 0, 0, 0); padding: 0.5px; margin: 4px;"></div>
+                                @Username
+                            </div>
+                        </a>
+                        <div style="left: -20px;" class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a style="color: #efefef" class="dropdown-item" href="~/ProfilePage.cshtml?username=@Username">Profile</a>
+                            <div style="background-color: rgba(0, 0, 0, 0.5); padding: 0.5px; margin: 6px;"></div>
+                            <input name="logout" value="Logout" type="submit" style="color: #efefef" class="dropdown-item" />
+                        </div>
+                    </form>
+                </li>
+            }
+            else
+            {
+                <div>
+                    <center>
+                        <a id="loginbtn" onclick="window.location.href = 'Login.cshtml';" class="btn btn-outline-danger">Login</a>
+                        &nbsp;
+                        <a id="registerbtn" onclick="window.location.href = 'Register.cshtml';" class="btn btn-outline-danger">Register</a>
+                    </center>
+                </div>
+            }
+            <div style="padding-right: 20px;"></div>
+        </div>
+    </nav>
+    <!-- Navigation bar -->
+    @RenderBody()
+    <!-- Footer -->
+    
+    <footer id="footer" class="footer">
+        <div id="footer">
+            <div class="container bottom_border">
+                <div class="row">
+                    <div class=" col-sm-4 col-md col-sm-4  col-12 col">
+                        <h5 class="headin5_amrc col_white_amrc pt2">Vind ons</h5>
+                        <!--headin5_amrc-->
+                        <p class="mb10">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s</p>
+                        <p><i class="fa fa-location-arrow"></i> </p>
+                        <p><i class="fa fa-phone"></i>  +31-  </p>
+                        <p><i class="fa fa fa-envelope"></i> info@example.com  </p>
+
+
+                    </div>
+
+
+                    <div class=" col-sm-4 col-md  col-6 col">
+                        <h5 class="headin5_amrc col_white_amrc pt2">Quick links</h5>
+                        <!--headin5_amrc-->
+                        <ul class="footer_ul_amrc">
+                            <li><a id="footerTxt" href="#">Temp</a></li>
+                            <li><a id="footerTxt" href="#">Temp</a></li>
+                            <li><a id="footerTxt" href="#">Temp</a></li>
+                        </ul>
+                        <!--footer_ul_amrc ends here-->
+                    </div>
+
+
+                    <div class=" col-sm-4 col-md  col-6 col">
+                        <h5 class="headin5_amrc col_white_amrc pt2">Quick links</h5>
+                        <!--headin5_amrc-->
+                        <ul class="footer_ul_amrc">
+                            <li><a id="footerTxt" href="#">Temp</a></li>
+                            <li><a id="footerTxt" href="#">Temp</a></li>
+                            <li><a id="footerTxt" href="#">Temp</a></li>
+                        </ul>
+                        <!--footer_ul_amrc ends here-->
+                    </div>
+
+                    <div class=" col-sm-4 col-md  col-12 col">
+                        <h5 class="headin5_amrc col_white_amrc pt2">Social Media</h5>
+                        <!--headin5_amrc ends here-->
+
+                        <ul class="footer_ul2_amrc">
+                            <li><a id="socialClean" href="#"><i class="fab fa-twitter fleft padding-right"></i> </a><p>Lorem Ipsum is simply dummy text of the printing...</p></li>
+                            <li><a id="socialClean" href="#"><i class="fab fa-twitter fleft padding-right"></i> </a><p>Lorem Ipsum is simply dummy text of the printing...</p></li>
+                            <li><a id="socialClean" href="#"><i class="fab fa-twitter fleft padding-right"></i> </a><p>Lorem Ipsum is simply dummy text of the printing...</p></li>
+                        </ul>
+                        <!--footer_ul2_amrc ends here-->
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <ul class="foote_bottom_ul_amrc">
+                    <li><a id="footerRedirect" href="#">Home</a></li>
+                    <li><a id="footerRedirect" href="#">About</a></li>
+                </ul>
+                <!--foote_bottom_ul_amrc ends here-->
+                <p class="text-center">Copyright 2019 | Designed by <a id="wizard" href="#">A Wizard</a></p>
+                <center>
+                    <div>
+                        <a id="social-ic" href="#"><i class="fab fa-facebook-square"></i></a>
+                        <a id="twitter-ic" href="#"><i class="fab fa-twitter"></i></a>
+                        <a id="social-ic" href="#"><i class="fab fa-linkedin"></i></a>
+                        <a id="social-ic" href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </center>
+                <!--social_footer_ul ends here-->
+            </div>
+        </div>
+    </footer>
+    <div style="padding: 100px;" id="footer"></div>
+    <!-- Footer -->
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</body>
+</html>

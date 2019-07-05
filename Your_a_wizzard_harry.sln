@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.329
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Your_a_wizzard_harry", "Your_a_wizzard_harry\", "{BAE1F723-4AAB-49DF-AB48-FCE56A4B4901}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.6.1"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_50746"
+		Debug.AspNetCompiler.PhysicalPath = "Your_a_wizzard_harry\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_50746\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_50746"
+		Release.AspNetCompiler.PhysicalPath = "Your_a_wizzard_harry\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_50746\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "50746"
+		SlnRelativePath = "Your_a_wizzard_harry\"
+		DefaultWebSiteLanguage = "Visual C#"
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1A816169-D099-4165-99E2-1DBCB89C8670}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BAE1F723-4AAB-49DF-AB48-FCE56A4B4901}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAE1F723-4AAB-49DF-AB48-FCE56A4B4901}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AF322383-886E-43CA-8D8A-75D1C318078C}
+	EndGlobalSection
+EndGlobal

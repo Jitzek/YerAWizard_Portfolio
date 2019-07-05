@@ -1,0 +1,118 @@
+﻿@{
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+
+    string provider = "System.Data.SqlClient";
+
+    Database db = Database.OpenConnectionString(connectionString, provider);
+
+    //scholen en het punten dat ze hebben aan het einde van de quize
+    int gryffindorP = 0, hufflepuffP = 0, ravenclawP = 0, slytherinP = 0, questionindex = 1;
+    List<string> houses = new List<string> { "Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin" };
+    string winninghouse = "";
+    string mail = "";
+    int house_Id = 0;
+    int points = 0;
+    Boolean win = false;
+
+    if (Session["mail"] != null)
+    {
+        mail = Session["mail"].ToString();
+    }
+    else { Response.Redirect("~/login.cshtml"); }
+
+    //kijkt wat de antwoorden van de vragen zijn  
+    for (int i = 0; i < 10; i++)
+    {
+        if (!Request["Q" + questionindex].IsEmpty())
+        {
+            string house = Request["Q" + questionindex];
+            switch (house)
+            {
+                case "griffindor":
+                    gryffindorP++;
+                    break;
+                case "hufflepuff":
+                    hufflepuffP++;
+                    break;
+                case "ravenclaw":
+                    ravenclawP++;
+                    break;
+                case "slytherin":
+                    slytherinP++;
+                    break;
+            }
+        }
+        questionindex++;
+    }
+
+    //kijkt welk huis gewonnen heeft
+    foreach (string house in houses)
+    {
+
+        switch (house)
+        {
+            case "Gryffindor":
+                points = gryffindorP;
+                break;
+            case "Hufflepuff":
+                points = hufflepuffP;
+                break;
+            case "Ravenclaw":
+                points = ravenclawP;
+                break;
+            case "Slytherin":
+                points = slytherinP;
+                break;
+        }
+
+        if (points >= gryffindorP)
+        {
+            if (points >= ravenclawP)
+            {
+                if (points >= hufflepuffP)
+                {
+                    if (points >= slytherinP)
+                    {
+                        win = true;
+                    }
+                }
+            }
+        }
+        if (win == true)
+        {
+            winninghouse = house;
+            string gethouseid = "SELECT House_Id FROM HOUSE where house_Name = @0";
+            var house_id = db.QueryValue(gethouseid, house);
+            string insertuserintohouse = "UPDATE PROFIEL SET House_House_ID = @0 WhERE EMail = @1";
+            var push = db.Execute(insertuserintohouse, house_id, mail);
+        }
+        win = false;
+    }
+
+    //haalt het House_Id op
+    string SearchHouse = "SELECT House_Id FROM House WHERE House_name = @0";
+    int HouseIdd = db.QueryValue(SearchHouse, winninghouse);
+
+
+    //voeg gebruiker toe aan house en geef user house
+    string AddHouse = "UPDATE Profiel  SET House_House_ID  = @0 WHERE Username = @1";
+    db.Execute(AddHouse, house_Id, WebSecurity.CurrentUserName);
+
+
+    if (winninghouse == "Gryffindor")
+    {
+        Response.Redirect("~/Gryffindor.cshtml");
+    }
+    else if (winninghouse == "Hufflepuff")
+    {
+        Response.Redirect("~/Hufflepuff.cshtml");
+    }
+    else if (winninghouse == "Ravenclaw")
+    {
+        Response.Redirect("~/Ravenclaw.cshtml");
+    }
+    else if (winninghouse == "Slytherin")
+    {
+        Response.Redirect("~/Slytherin.cshtml");
+    }
+}

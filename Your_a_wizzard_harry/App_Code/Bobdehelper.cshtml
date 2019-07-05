@@ -1,0 +1,13 @@
+﻿@helper Sessionnull() { 
+    if (Session["mail"] == null)
+    {
+        Response.Redirect("~/login.cshtml");
+    }
+}
+@helper IfIsBlocked(Authentication auth) { 
+    if (auth.IsBlocked()) 
+    { 
+        Session.Abandon();
+        // Add Cookie clearing logic (after making a definite cookie system)
+    }
+}

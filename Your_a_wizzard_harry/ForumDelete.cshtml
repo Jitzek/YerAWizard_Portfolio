@@ -1,0 +1,251 @@
+﻿@{ 
+    Layout = "~/_SiteLayout.cshtml";
+    Page.Title = "Forums";
+    PageData["current"] = "Forums";
+
+    int Id = 0;
+    string Name = "";
+    string Description = "";
+    string Category = "";
+    string mail = "";
+    string Icon = "";
+
+    if (Request.QueryString["ForumId"] != null)
+    {
+        Id = Request.QueryString["ForumId"].AsInt();
+    }
+    else { Response.Redirect("~/ForumPage.cshtml"); }
+
+    if (Session["mail"] != null)
+    {
+        mail = Session["mail"].ToString();
+    }
+    else
+    {
+        Session.Abandon();
+        Response.Redirect("~/login.cshtml");
+    }
+
+
+    string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Harry_Potter.mdf;Integrated Security=True";
+    string provider = "System.Data.SqlClient";
+    Database db = Database.OpenConnectionString(connectionString, provider);
+
+    var getUser = "SELECT Rank FROM [Profiel] WHERE Email = @0";
+    var Rank = db.QuerySingle(getUser, mail).Rank;
+    if (Rank == "Teacher" || Rank == "Owner")
+    {
+        var Data = db.QuerySingle("SELECT * FROM Forum WHERE Forum_Id = @0", Id);
+        Name = Data.Forum_name;
+        Description = Data.Description;
+        Category = Data.Category;
+        Icon = Data.Icon;
+    }
+    else { Response.Redirect("~/login.cshtml"); }
+
+    int AmmountOfPosts = db.QuerySingle("SELECT COUNT(Post_Id) AS Amount FROM Post WHERE Forum_Forum_Id = @0", Id).Amount;
+    if (IsPost)
+    {
+        db.Execute("DELETE FROM Replies  WHERE Forum_Forum_Id = @0", Id);
+        db.Execute("DELETE FROM Comments WHERE Forum_Forum_Id = @0", Id);
+        db.Execute("DELETE FROM IsVoted WHERE Forum_Forum_Id = @0", Id);
+        db.Execute("DELETE FROM Post WHERE Forum_Forum_Id = @0", Id);
+        db.Execute("DELETE FROM Forum WHERE Forum_Id = @0", Id);
+        Response.Redirect("~/ForumPage.cshtml");
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+    <link href="~/Stylesheets/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Stylesheets/Layout.css" rel="stylesheet" type="text/css" />
+    <link href="~/Stylesheets/ForumSelect.css" rel="stylesheet" type="text/css" />
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <style type="text/css">
+
+        body {
+            font-family: 'Varela Round', sans-serif;
+        }
+
+        .modal-confirm {
+            color: #636363;
+            width: 400px;
+        }
+
+            .modal-confirm .modal-content {
+                padding: 20px;
+                border-radius: 5px;
+                border: none;
+                text-align: center;
+                font-size: 14px;
+            }
+
+            .modal-confirm .modal-header {
+                border-bottom: none;
+                position: relative;
+            }
+
+            .modal-confirm h4 {
+                text-align: center;
+                font-size: 26px;
+                margin: 30px 0 -10px;
+            }
+
+            .modal-confirm .close {
+                position: absolute;
+                top: -5px;
+                right: -2px;
+            }
+
+            .modal-confirm .modal-body {
+                color: #999;
+            }
+
+            .modal-confirm .modal-footer {
+                border: none;
+                text-align: center;
+                border-radius: 5px;
+                font-size: 13px;
+                padding: 10px 15px 25px;
+            }
+
+                .modal-confirm .modal-footer a {
+                    color: #999;
+                }
+
+            .modal-confirm .icon-box {
+                width: 80px;
+                height: 80px;
+                margin: 0 auto;
+                border-radius: 50%;
+                z-index: 9;
+                text-align: center;
+                border: 3px solid #f15e5e;
+            }
+
+                .modal-confirm .icon-box i {
+                    color: #f15e5e;
+                    font-size: 46px;
+                    display: inline-block;
+                    margin-top: 13px;
+                }
+
+            .modal-confirm .btn {
+                color: #fff;
+                border-radius: 4px;
+                background: #60c7c1;
+                text-decoration: none;
+                transition: all 0.4s;
+                line-height: normal;
+                min-width: 120px;
+                border: none;
+                min-height: 40px;
+                border-radius: 3px;
+                margin: 0 5px;
+                outline: none !important;
+            }
+
+            .modal-confirm .btn-info {
+                background: #c1c1c1;
+            }
+
+                .modal-confirm .btn-info:hover, .modal-confirm .btn-info:focus {
+                    background: #a8a8a8;
+                }
+
+            .modal-confirm .btn-danger {
+                background: #f15e5e;
+            }
+
+                .modal-confirm .btn-danger:hover, .modal-confirm .btn-danger:focus {
+                    background: #ee3535;
+                }
+
+        .trigger-btn {
+            display: inline-block;
+            margin: 100px auto;
+        }
+    </style>
+</head>
+<body style="background-color: #202325;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="wrapper wrapper-content animated fadeInRight">
+                    <div class="ibox-content forum-container" style="background-color: #343a40">
+                        <div style="padding-bottom: 200px;"></div>
+                        <div class="forum-item active">
+                            <div class="row">
+                                <div class="col-md-11">
+                                    @if (Category == "General")
+                                    {
+                                        <div class="forum-icon">
+                                            <i class="fa fa-@Icon"></i>
+                                        </div>
+                                        <label class="link-replace">@Name</label>
+                                        <div class="forum-sub-title">@Description</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="forum-icon">
+                                            <i style="color: white;" class="fa fa-@Icon"></i>
+                                        </div>
+                                        <label style="color: white;" class="link-replace">@Name</label>
+                                        <div class="forum-sub-title">@Description</div>
+                                    }
+                                </div>
+                                <div class="col-md-1 forum-info">
+                                    <span class="views-number" style="color: white;">
+                                        @AmmountOfPosts
+                                    </span>
+                                    <div>
+                                        @if (AmmountOfPosts == 1)
+                                        {
+                                            <small>Post</small>
+                                        }
+                                        else
+                                        { <small>Posts</small>}
+                                    </div>
+                                </div>
+                            </div>
+                            <center>
+                                <a href="~/ForumPage.cshtml" class="trigger-btn">cancel</a>
+                                &nbsp;
+                                <a href="#myModal" id="delBtn" class="trigger-btn" data-toggle="modal">Delete Forum</a>
+                            </center>
+                            <div id="myModal" class="modal fade" style="display: none;">
+                                <div class="modal-dialog modal-confirm">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <div class="icon-box">
+                                                <i class="material-icons"></i>
+                                            </div>
+                                            <h4 class="modal-title">Are you sure?</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete the forum:<br /> <span style="font-weight: bold;">@Name</span>?<br /> This will remove all it's posts, this action cannot be undone</p>
+                                        </div>
+                                        <form class="modal-footer" method="post">
+                                            <button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

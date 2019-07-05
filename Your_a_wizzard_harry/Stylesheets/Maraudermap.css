@@ -1,0 +1,13 @@
+﻿body {
+    background-image: url(https://images.wallpaperscraft.com/image/texture_paper_stains_old_50403_1920x1080.jpg);
+    overflow: hidden;
+}
+
+.foot {
+    width: 59px;
+    height: 24px;
+    position: absolute;
+    opacity: 0.7;
+    background-image: url(Images/footstep.png);
+    background-size: 100% 100%;
+}

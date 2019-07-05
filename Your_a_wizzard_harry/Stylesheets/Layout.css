@@ -1,0 +1,388 @@
+﻿@keyframes placeholder {
+    from {}
+    to {}
+}
+
+
+#Logo {
+    cursor: pointer;
+}
+#Logo:hover {
+    background: none;
+}
+
+.nav-space {
+    padding-left: 6px;
+}
+@media only screen and (max-width: 991px) {
+    .nav-space {
+        padding-left: 0px;
+    }
+}
+
+.nav-link:hover {
+    border-radius: 12px;
+    background-color: #2c3237;
+}
+
+.dropdown-menu {
+    background-color: #343a40;
+}
+
+.dropdown-item:hover {
+    color: white;
+    background-color: #2c3237;
+}
+
+#loginbtn {
+    color: #dc3545;
+    padding: 4px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+#loginbtn:hover {
+    color: white;
+    border-color: #dc3545;
+}
+
+#registerbtn {
+    color: #00b1ff;
+    text-decoration: underline;
+    cursor: pointer;
+    border: none;
+    padding: 4px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin: 0px;
+}
+    #registerbtn:hover {
+        color: white;
+        background-color: #00a9ff;
+        text-decoration: none;
+    }
+
+#footer {
+    background-color: #343a40;
+}
+
+#social-ic {
+    color: white;
+    background-color: #343a40;
+    font-size: 30px;
+    border-radius: 100px;
+    padding: 2px;
+    padding-left: 8.875px;
+    padding-right: 8.875px;
+}
+    #social-ic:hover {
+        color: #343a40;
+        background-color: white;
+    }
+#twitter-ic {
+    color: white;
+    background-color: #343a40;
+    font-size: 30px;
+    border-radius: 100px;
+    padding: 2px;
+    padding-left: 7px;
+    padding-right: 7px;
+}
+    #twitter-ic:hover {
+        color: #343a40;
+        background-color: white;
+    }
+
+
+#socialClean {
+    color: white;
+    background-color: #343a40;
+}
+    #socialClean:hover {
+        color: white;
+        
+    }
+
+#footerTxt {
+    color: #cccccc;
+    background-color: #343a40;
+}
+    #footerTxt:hover {
+        color: #cccccc;
+        background-color: #343a40;
+    }
+
+#footerRedirect {
+    color: #999999;
+    background-color: #343a40;
+}
+    #footerRedirect:hover {
+        color: #999999;
+        background-color: #343a40;
+    }
+
+#wizard {
+    color: #cccccc;
+    background-color: #343a40;
+}
+    #wizard:hover {
+        color: #cccccc;
+        background-color: #343a40;
+    }
+
+
+/* About Page */
+#abtBtn {
+    color: white;
+}
+
+    #abtBtn:hover {
+    }
+
+
+/* House Page */
+
+#houseGrBtn {
+    background-color: #7F0909;
+    border: solid 1px #7F0909;
+}
+    #houseGrBtn:hover {
+        background-color: #6c0707;
+        border-color: #6c0707;
+    }
+
+#houseSlBtn {
+    background-color: #0D6217;
+    border: solid 1px #0D6217;
+}
+
+    #houseSlBtn:hover {
+        background-color: #0a4f13;
+        border-color: #0a4f13;
+    }
+
+#houseRaBtn {
+    background-color: #000A90;
+    border: solid 1px #000A90;
+}
+
+    #houseRaBtn:hover {
+        background-color: #010979;
+        border-color: #010979;
+    }
+
+#houseHuBtn {
+    background-color: #E9AC2D;
+    border: solid 1px #E9AC2D;
+}
+
+    #houseHuBtn:hover {
+        background-color: #ca9426;
+        border-color: #ca9426;
+    }
+
+#houseBackgr-Gr {
+    background: url(/Images/Hogwarts_Gryffindor.jpg) no-repeat center;
+    background-size: cover;
+}
+#houseBackgr-Hu {
+    background: url(/Images/Hogwarts_Hufflepuff.jpg) no-repeat center;
+    background-size: cover;
+}
+#houseBackgr-Ra {
+    background: url(/Images/Hogwarts_Ravenclaw.jpg) no-repeat center;
+    background-size: cover;
+}
+#houseBackgr-Sl {
+    background: url(/Images/Hogwarts_Slytherin.jpg) no-repeat center;
+    background-size: cover;
+}
+
+.sub-text {
+    font-size: 16px;
+    font-weight: normal;
+    line-height: 1;
+    color: #999;
+    
+}
+
+#house-Wiki {
+    font-family: 'Crimson Text', serif;
+}
+
+.house-head {
+    font-size: 30px;
+    color: #dddddd;
+}
+
+.house-par {
+    font-size: 20px;
+    color: #dddddd;
+}
+
+#houseInfo {
+    padding-top: 15px;
+}
+
+.Gr-mention {
+    color: #ae1010;
+}
+.Sl-mention {
+    color: #11721c;
+}
+.Ra-mention {
+    color: #0849e5;
+}
+.Hu-mention {
+    color: #E9AC2D;
+}
+    /*
+#page-nav {
+    padding: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: none;
+}
+
+#forumc {
+    border: solid;
+    padding: 6px;
+}
+
+.clink {
+    cursor: pointer;
+}
+    .clink:hover {
+        color: initial;
+        background: none;
+        color: black;
+    }
+
+
+#userc {
+    color: #343434
+}
+    #userc:hover {
+        color: initial;
+        background: initial;
+        text-decoration: none;
+    }
+
+#pinned {
+    color: #018500;
+}
+
+#comments {
+    max-width: 2%;
+}
+@media only screen and (max-width: 800px) {
+    #title {
+        max-width: 70%;
+    }
+}
+@media only screen and (max-width: 500px) {
+    #title {
+        max-width: 60%;
+    }
+}
+@media only screen and (max-width: 250px) {
+    #title {
+        max-width: 40%;
+    }
+}*/
+    /* HouseSelect */
+    #hs-backgr {
+    background: url(/Images/Hogwarts_clean.jpg) no-repeat center;
+    background-size: cover;
+}
+
+#houseBtn {
+    padding: 0px;
+    margin: 0px;
+    border: none;
+}
+
+.box{
+    padding:60px 0px;
+}
+
+.box-part{
+    background:#FFF;
+    border: none;
+    border-radius:10px;
+    padding:80px 30px;
+    margin:30px 0px;
+}
+
+#Gryffindor {
+    background: url(../Images/scroll.jpg) no-repeat center;
+    background-size: cover;
+    -webkit-transition: 1s ease-out;
+}
+    #Gryffindor:hover {
+        background: #7F0909;
+        -webkit-transition: 0.5s ease-in;
+    }
+
+#Slytherin {
+    background: url(../Images/scroll.jpg) no-repeat center;
+    background-size: cover;
+    -webkit-transition: 1s ease-out;
+}
+    #Slytherin:hover {
+        background: #0D6217;
+        -webkit-transition: 0.5s ease-in;
+    }
+
+#Ravenclaw {
+    background: url(../Images/scroll.jpg) no-repeat center;
+    background-size: cover;
+    -webkit-transition: 1s ease-out;
+}
+
+    #Ravenclaw:hover {
+        background: #000A90;
+        -webkit-transition: 0.5s ease-in;
+    }
+
+#Hufflepuff {
+    background: url(../Images/scroll.jpg) no-repeat center;
+    background-size: cover;
+    -webkit-transition: 1s ease-out;
+}
+
+    #Hufflepuff:hover {
+        background: #9c7420;
+        -webkit-transition: 0.5s ease-in;
+    }
+
+.box-part:hover .fa , 
+.box-part:hover .title , 
+.box-part:hover .text ,
+.box-part:hover a{
+    color:#FFF;
+    -webkit-transition: all 1s ease-out;
+    -moz-transition: all 1s ease-out;
+    -o-transition: all 1s ease-out;
+    transition: all 1s ease-out;
+}
+
+.text{
+    margin:20px 0px;
+}
+
+#clearBtn {
+    margin-left: 16px;
+    border: none;
+    background: none;
+    color: #dddddd;
+    cursor: pointer;
+}
+#clearBtn:hover {
+    border: none;
+    background: none;
+    color: white;
+}
+
+#notifications {
+    overflow-y: scroll;
+}

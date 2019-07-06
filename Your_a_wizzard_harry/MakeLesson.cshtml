@@ -1,13 +1,66 @@
 ﻿@{
-    @Bobdehelper.Sessionnull();
-    Authentication auth = new Authentication(Session["mail"].ToString());
+    
+    ///Checking and setting User Data
+    //@Bobdehelper.Sessionnull();
+    Authentication auth = new Authentication("henk@henk.com");
+    //Authentication auth = new Authentication(Session["mail"].ToString());
     @Bobdehelper.IfIsBlocked(auth);
     if (auth.IsStudent())
     {
         Response.Redirect("~/HomePage.cshtml");
     }
     string[] userData = auth.getUser(); // 0 = Id   1 = Username
+                                        ///
 
+    ///Setting the Validation
+
+    ///
+
+    if (IsPost)
+    {
+        ///Setting up the Database
+
+        dbConfig dbConfig = new dbConfig();
+        Database db = dbConfig.GetDatabase();
+
+        //
+
+        ///Getting the data
+
+        string Title = Request.Form["title"];
+        string Description = Request.Form["description"];
+
+        for (int i = 0; i <= 10; i++)
+        {
+            //Question
+            if (Request.Form["q" + i] == null)
+            {
+                break;
+            }
+            string question = Request.Form["q" + i];
+
+            //Answers
+            List<string> answers = new List<string> { };
+            for (int x = 1; x <= 4; x++)
+            {
+                if (Request.Form["a" + x] == null)
+                {
+                    break;
+                }
+                answers.Add(Request.Form["a" + x]);
+            }
+
+            //Correct Answer Indexes
+            int correct_answer = Request.Form["answer" + i].AsInt();
+
+            //Points
+            int points = Request.Form["points_" + i].AsInt();
+
+            ///Storing the Data
+            db.Execute("INSERT INTO Lesson_Table(Title, Description, Is_Sortinghat, Profile_Id) VALUES(@0, @1, @2, @3);");
+            ///
+        }
+    }
 }
 <!DOCTYPE html>
 <html>
@@ -17,40 +70,240 @@
     <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
     <meta charset="utf-8" />
     <title></title>
+    <style>
+        body {
+            font-family: 'Crimson Text', serif;
+        }
+
+        .row.heading h2 {
+            color: #fff;
+            font-size: 52.52px;
+            line-height: 95px;
+            font-weight: 400;
+            text-align: center;
+            margin: 0 0 40px;
+            padding-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .heading.heading-icon {
+            display: block;
+        }
+
+        .padding-lg {
+            display: block;
+            padding-top: 60px;
+            padding-bottom: 60px;
+        }
+
+        .practice-area.padding-lg {
+            padding-bottom: 55px;
+            padding-top: 55px;
+        }
+
+        .practice-area .inner {
+            border: 1px solid #999999;
+            text-align: center;
+            margin-bottom: 28px;
+            padding: 40px 25px;
+        }
+
+        .our-webcoderskull .cnt-block:hover {
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
+            border: 0;
+        }
+
+        .practice-area .inner h3 {
+            color: #3c3c3c;
+            font-size: 24px;
+            font-weight: 500;
+            padding: 10px 0;
+        }
+
+        .practice-area .inner p {
+            font-size: 14px;
+            line-height: 22px;
+            font-weight: 400;
+        }
+
+        .practice-area .inner img {
+            display: inline-block;
+        }
+
+        .our-webcoderskull .cnt-block {
+            float: left;
+            width: 100%;
+            background: #fff;
+            padding: 30px 20px;
+            text-align: center;
+            border: 2px solid #d5d5d5;
+            margin: 0 0 28px;
+        }
+
+            .our-webcoderskull .cnt-block figure {
+                width: 148px;
+                height: 148px;
+                border-radius: 100%;
+                display: inline-block;
+                margin-bottom: 15px;
+            }
+
+            .our-webcoderskull .cnt-block img {
+                width: 148px;
+                height: 148px;
+                border-radius: 100%;
+            }
+
+            .our-webcoderskull .cnt-block h3 {
+                color: #2a2a2a;
+                font-size: 20px;
+                font-weight: 500;
+                padding: 6px 0;
+                text-transform: uppercase;
+            }
+
+                .our-webcoderskull .cnt-block h3 a {
+                    text-decoration: none;
+                    color: #2a2a2a;
+                }
+
+                    .our-webcoderskull .cnt-block h3 a:hover {
+                        color: #337ab7;
+                    }
+
+            .our-webcoderskull .cnt-block p {
+                color: #2a2a2a;
+                font-size: 13px;
+                line-height: 20px;
+                font-weight: 400;
+            }
+
+            .our-webcoderskull .cnt-block .follow-us {
+                margin: 20px 0 0;
+            }
+
+                .our-webcoderskull .cnt-block .follow-us li {
+                    display: inline-block;
+                    width: auto;
+                    margin: 0 5px;
+                }
+
+                    .our-webcoderskull .cnt-block .follow-us li .fa {
+                        font-size: 24px;
+                        color: #767676;
+                    }
+
+                        .our-webcoderskull .cnt-block .follow-us li .fa:hover {
+                            color: #025a8e;
+                        }
+
+        #edit {
+            color: rgb(0, 150, 255);
+            font-size: 16px;
+        }
+
+            #edit:hover {
+                color: rgb(0, 110, 255);
+                font-size: 18px;
+            }
+
+        #lock {
+            color: rgb(140, 140, 140);
+            font-size: 16px;
+        }
+
+            #lock:hover {
+                color: rgb(100, 100, 100);
+                font-size: 18px;
+            }
+
+        #delete {
+            color: rgb(160, 0, 0);
+            font-size: 16px;
+        }
+
+            #delete:hover {
+                color: rgb(120, 0, 0);
+                font-size: 18px;
+            }
+    </style>
+
 </head>
 <body>
-    <div class="container-fluid bg-info">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3><span class="label label-warning" id="qid">2</span> THREE is CORRECT</h3>
+    <form method="post" enctype="multipart/form-data">
+        <section class="our-webcoderskull padding-lg" style="background: url(Images/hpback2.png) no-repeat fixed; background-size: cover;">
+            <div class="container">
+                <div style="background: url(Images/scroll.jpg) no-repeat center">
+                    <input id="inputfile" class="btn btn-outline-dark" type="file" name="image" />
                 </div>
-                <div class="modal-body">
-                    <div class="col-xs-3 col-xs-offset-5">
-                        <div id="loadbar" style="display: none;">
-                            <div class="blockG" id="rotateG_01"></div>
-                            <div class="blockG" id="rotateG_02"></div>
-                            <div class="blockG" id="rotateG_03"></div>
-                            <div class="blockG" id="rotateG_04"></div>
-                            <div class="blockG" id="rotateG_05"></div>
-                            <div class="blockG" id="rotateG_06"></div>
-                            <div class="blockG" id="rotateG_07"></div>
-                            <div class="blockG" id="rotateG_08"></div>
+                <div class="cnt-block equal-hight" style="height: 340px; border: solid 1px black; border-radius: 10px; background: url(Images/scroll.jpg) no-repeat center;">
+                    <figure><img src="~/Images/Hat.png" class="img-responsive" alt=""></figure>
+                    <h3><input type="text" /></h3>
+                    <p><textarea></textarea></p>
+                    <br />
+                </div>
+            </div>
+            <hr />
+        </section>
+        <div id="questions" class="container-fluid bg-info" style="background: url(Images/hpback2.png) no-repeat fixed; background-size: cover;">
+            <div id="1" class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><span class="label label-warning" id="qid">#</span> <input name="q1" type="text" /></h3>
+                    </div>
+                    <div class="modal-body">
+                        <div class="quiz" id="quiz">
+                            <br />
+                            <input type="radio" name="answer" value="1"> <input name="a1" type="text" /><br>
+                            <input type="radio" name="answer" value="2"> <input name="a2" type="text" /><br>
+                            <input type="radio" name="answer" value="3"> <input name="a3" type="text" /><br>
+                            <input type="radio" name="answer" value="4"> <input name="a4" type="text" /><br>
                         </div>
+                        <input type="number" name="points" />
+                        <br />
                     </div>
-
-                    <div class="quiz" id="quiz" data-toggle="buttons">
-                        <label class="element-animation1 btn btn-lg btn-primary btn-block"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="1">1 One</label>
-                        <label class="element-animation2 btn btn-lg btn-primary btn-block"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="2">2 Two</label>
-                        <label class="element-animation3 btn btn-lg btn-primary btn-block"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="3">3 Three</label>
-                        <label class="element-animation4 btn btn-lg btn-primary btn-block"><span class="btn-label"><i class="glyphicon glyphicon-chevron-right"></i></span> <input type="radio" name="q_answer" value="4">4 Four</label>
+                    <div class="modal-footer text-muted">
+                        <span id="answer"></span>
                     </div>
-                </div>
-                <div class="modal-footer text-muted">
-                    <span id="answer"></span>
                 </div>
             </div>
         </div>
-    </div>
+        <button type="submit">Submit</button>
+    </form>
+    <button id="add" onclick="addQuestion()">Add Question</button>
+    <script>
+        index = 1;
+        c_index = 1;
+    function addQuestion() {
+        document.getElementById("questions").innerHTML +=
+            '<div id="' + index + '" class="modal-dialog">'
+            + '<div class="modal-content">'
+                + '<div class="modal-header">'
+                    + '<h3><span class="label label-warning" id="qid">' + index + '</span> <input name="q' + index + '" type="text" /></h3>'
+                + '</div>'
+            + '<div class="modal-body">'
+                + '<div class="quiz" id="quiz">'
+                    + '<br />'
+                    + '<input type="radio" name="answer' + index + '" value="' + (c_index++) + '"> <input name="a1_' + index + '" type="text" /><br>'
+                    + '<input type="radio" name="answer' + index + '" value="' + (c_index++) + '"> <input name="a2_' + index + '" type="text" /><br>'
+                    + '<input type="radio" name="answer' + index + '" value="' + (c_index++) + '"> <input name="a3_' + index + '" type="text" /><br>'
+                    + '<input type="radio" name="answer' + index + '" value="' + (c_index++) + '"> <input name="a4_' + index + '" type="text" /><br>'
+                + '</div>'
+                + '<input type="number" name="points_' + index + '" />'
+                + '<br />'
+            + '</div>'
+            + '<div class="modal-footer text-muted">'
+                + '<span id="answer"></span></div><span>' + index + '</span>'
+            + '</div>'
+        + '</div>';
+        index++;
+        }
+    </script>
 </body>
 </html>

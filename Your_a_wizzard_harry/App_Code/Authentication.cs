@@ -19,9 +19,10 @@ public class Authentication
     public Authentication(string mail)
     {
         dbConfig dbConfig = new dbConfig();
-        db = dbConfig.Db();
+        db = dbConfig.GetDatabase();
         this.mail = mail;
-        this.rank = db.QuerySingle("SELECT Rank FROM Profile_Table WHERE Email = @0", mail);
+        rank = "Owner";
+        //this.rank = db.QuerySingle("SELECT Rank FROM Profile_Table WHERE Email = @0", mail);
     }
     
     /// <summary>
@@ -30,7 +31,8 @@ public class Authentication
     /// <returns></returns>
     public bool IsBlocked()
     {
-        return db.QuerySingle("SELECT Is_Blocked FROM Profile_Table WHERE Email = @0", mail).Is_Blocked;
+        return false;
+        //return db.QuerySingle("SELECT Is_Blocked FROM Profile_Table WHERE Email = @0", mail).Is_Blocked;
     }
     
     /// <summary>
@@ -66,6 +68,10 @@ public class Authentication
     /// <returns></returns>
     public string[] getUser()
     {
-        return db.QueryValue("SELECT Id, Username FROM Profile_Table WHERE Email = @0", mail);
+        string[] test = new string[2];
+        test[0] = "1";
+        test[1] = "Henk";
+        return test;
+        //return db.QueryValue("SELECT Id, Username FROM Profile_Table WHERE Email = @0", mail);
     }
 }

@@ -17,7 +17,7 @@ public class dbConfig
         db = Database.OpenConnectionString(connectionString, provider);
     }
 
-    public Database Db()
+    public Database GetDatabase()
     {
         return db;
     }
